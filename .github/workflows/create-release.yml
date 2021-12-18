@@ -3,7 +3,7 @@ name: Create release
 on:
   create:
     tags:
-      - 'v*'
+      - '*'
 
 jobs:
   create-github-release:
