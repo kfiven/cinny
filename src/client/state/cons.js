@@ -1,5 +1,5 @@
 const cons = {
-  version: '1.5.1',
+  version: '1.6.0',
   secretKey: {
     ACCESS_TOKEN: 'cinny_access_token',
     DEVICE_ID: 'cinny_device_id',
@@ -19,6 +19,12 @@ const cons = {
     MENTIONS_AND_KEYWORDS: 'mentions_and_keywords',
     MUTE: 'mute',
   },
+  status: {
+    PRE_FLIGHT: 'pre-flight',
+    IN_FLIGHT: 'in-flight',
+    SUCCESS: 'success',
+    ERROR: 'error',
+  },
   actions: {
     navigation: {
       SELECT_TAB: 'SELECT_TAB',
@@ -35,6 +41,7 @@ const cons = {
       OPEN_READRECEIPTS: 'OPEN_READRECEIPTS',
       OPEN_ROOMOPTIONS: 'OPEN_ROOMOPTIONS',
       CLICK_REPLY_TO: 'CLICK_REPLY_TO',
+      OPEN_SEARCH: 'OPEN_SEARCH',
     },
     room: {
       JOIN: 'JOIN',
@@ -49,6 +56,8 @@ const cons = {
     settings: {
       TOGGLE_MARKDOWN: 'TOGGLE_MARKDOWN',
       TOGGLE_PEOPLE_DRAWER: 'TOGGLE_PEOPLE_DRAWER',
+      TOGGLE_MEMBERSHIP_EVENT: 'TOGGLE_MEMBERSHIP_EVENT',
+      TOGGLE_NICKAVATAR_EVENT: 'TOGGLE_NICKAVATAR_EVENT',
     },
   },
   events: {
@@ -67,6 +76,7 @@ const cons = {
       READRECEIPTS_OPENED: 'READRECEIPTS_OPENED',
       ROOMOPTIONS_OPENED: 'ROOMOPTIONS_OPENED',
       REPLY_TO_CLICKED: 'REPLY_TO_CLICKED',
+      SEARCH_OPENED: 'SEARCH_OPENED',
     },
     roomList: {
       ROOMLIST_UPDATED: 'ROOMLIST_UPDATED',
@@ -81,10 +91,15 @@ const cons = {
       FULL_READ: 'FULL_READ',
     },
     roomTimeline: {
+      READY: 'READY',
       EVENT: 'EVENT',
       PAGINATED: 'PAGINATED',
       TYPING_MEMBERS_UPDATED: 'TYPING_MEMBERS_UPDATED',
-      READ_RECEIPT: 'READ_RECEIPT',
+      LIVE_RECEIPT: 'LIVE_RECEIPT',
+      MARKED_AS_READ: 'MARKED_AS_READ',
+      EVENT_REDACTED: 'EVENT_REDACTED',
+      AT_BOTTOM: 'AT_BOTTOM',
+      SCROLL_TO_LIVE: 'SCROLL_TO_LIVE',
     },
     roomsInput: {
       MESSAGE_SENT: 'MESSAGE_SENT',
@@ -96,6 +111,8 @@ const cons = {
     settings: {
       MARKDOWN_TOGGLED: 'MARKDOWN_TOGGLED',
       PEOPLE_DRAWER_TOGGLED: 'PEOPLE_DRAWER_TOGGLED',
+      MEMBERSHIP_EVENTS_TOGGLED: 'MEMBERSHIP_EVENTS_TOGGLED',
+      NICKAVATAR_EVENTS_TOGGLED: 'NICKAVATAR_EVENTS_TOGGLED',
     },
   },
 };

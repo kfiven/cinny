@@ -23,6 +23,12 @@
   &__avatar-container {
     padding-top: 6px;
     margin-right: var(--sp-tight);
+    & .avatar-container {
+      transition: transform 200ms var(--fluid-push);
+      &:hover {
+        transform: translateY(-4px);
+      }
+    }
 
     & button {
       cursor: pointer;
@@ -54,6 +60,10 @@
   }
   &__avatar-container {
     width: var(--av-small);
+  }
+  &--focus {
+    box-shadow: inset 2px 0 0 var(--bg-caution);
+    background-color: var(--bg-caution-hover);
   }
 }
 
@@ -96,6 +106,7 @@
 
 .message__reply,
 .message__body,
+.message__body__wrapper,
 .message__edit,
 .message__reactions {
   max-width: calc(100% - 88px);
@@ -117,17 +128,16 @@
       margin-right: 0;
     }
 
-    & > .text {
+    & > span {
       color: inherit;
-      font-weight: 500;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
     }
-    & > .text:last-child { display: none; }
+    & > span:last-child { display: none; }
     &:hover {
-      & > .text:first-child { display: none; }
-      & > .text:last-child { display: block; }
+      & > span:first-child { display: none; }
+      & > span:last-child { display: block; }
     }
   }
 
@@ -142,6 +152,19 @@
   }
 }
 .message__reply {
+  &-wrapper {
+    min-height: 20px;
+    cursor: pointer;
+    &:empty {
+      border-radius: calc(var(--bo-radius) / 2);
+      background-color: var(--bg-surface-hover);
+      max-width: 200px;
+      cursor: auto;
+    }
+    &:hover .text {
+      color: var(--tc-surface-high);
+    }
+  }
   .text {
     color: var(--tc-surface-low);
     white-space: nowrap;
@@ -156,6 +179,10 @@
 .message__body {
   word-break: break-word;
 
+  & > .text > * {
+    white-space: pre-wrap;
+  }
+
   & a {
     word-break: break-word;
   }
@@ -164,7 +191,7 @@
     padding: 0 2px;
     border-radius: 4px;
     cursor: pointer;
-    font-weight: 500;
+    font-weight: var(--fw-medium);
     &:hover {
       background-color: hsla(0, 0%, 64%, 0.3);
       color: var(--tc-surface-high);
@@ -182,6 +209,7 @@
     border-radius: 4px;
     background-color: rgba(124, 124, 124, 0.5);
     color:transparent;
+    cursor: pointer;
     -webkit-touch-callout: none;
     -webkit-user-select: none;
     -khtml-user-select: none;
@@ -191,15 +219,14 @@
     & > * {
       opacity: 0;
     }
-    &:focus, &:hover {
-      background-color: transparent;
-      color: inherit;
-      user-select: initial;
-      & > * {
-        opacity: inherit;
-      }
+  }
+  .data-mx-spoiler--visible {
+    background-color: var(--bg-surface-active) !important;
+    color: inherit !important;
+    user-select: initial !important;
+    & > * {
+      opacity: inherit !important;
     }
-
   }
   &-edited {
     color: var(--tc-surface-low);
@@ -288,7 +315,7 @@
   position: absolute;
   top: 0;
   right: 60px;
-  z-index: 999;
+  z-index: 99;
   transform: translateY(-50%);
 
   border-radius: var(--bo-radius);
@@ -307,23 +334,23 @@
   & h1,
   & h2 {
     color: var(--tc-surface-high);
-    margin: var(--sp-extra-loose) 0 var(--sp-normal);
+    margin: var(--sp-loose) 0 var(--sp-normal);
     line-height: var(--lh-h1);
   }
   & h3,
   & h4 {
     color: var(--tc-surface-high);
-    margin: var(--sp-loose) 0 var(--sp-tight);
+    margin: var(--sp-normal) 0 var(--sp-tight);
     line-height: var(--lh-h2);
   }
   & h5,
   & h6 {
     color: var(--tc-surface-high);
-    margin: var(--sp-normal) 0 var(--sp-extra-tight);
+    margin: var(--sp-tight) 0 var(--sp-extra-tight);
     line-height: var(--lh-s1);
   }
   & hr {
-    border-color: var(--bg-surface-border);
+    border-color: var(--bg-divider);
   }
 
   .text img {

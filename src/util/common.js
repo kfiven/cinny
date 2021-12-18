@@ -13,11 +13,11 @@ export function diffMinutes(dt2, dt1) {
   return Math.abs(Math.round(diff));
 }
 
-export function isNotInSameDay(dt2, dt1) {
+export function isInSameDay(dt2, dt1) {
   return (
-    dt2.getDay() !== dt1.getDay()
-    || dt2.getMonth() !== dt1.getMonth()
-    || dt2.getYear() !== dt1.getYear()
+    dt2.getFullYear() === dt1.getFullYear()
+    && dt2.getMonth() === dt1.getMonth()
+    && dt2.getDate() === dt1.getDate()
   );
 }
 
@@ -90,7 +90,6 @@ export function getScrollInfo(target) {
   scroll.top = Math.round(target.scrollTop);
   scroll.height = Math.round(target.scrollHeight);
   scroll.viewHeight = Math.round(target.offsetHeight);
-  scroll.bottom = Math.round(scroll.top + scroll.viewHeight);
   scroll.isScrollable = scroll.height > scroll.viewHeight;
   return scroll;
 }

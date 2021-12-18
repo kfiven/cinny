@@ -7,65 +7,114 @@ import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
 
 import Text from '../../atoms/text/Text';
+import Button from '../../atoms/button/Button';
 import IconButton from '../../atoms/button/IconButton';
 
 import ChevronBottomIC from '../../../../public/res/ic/outlined/chevron-bottom.svg';
+import TickMarkIC from '../../../../public/res/ic/outlined/tick-mark.svg';
 
 import { getUsersActionJsx } from './common';
 
-function RoomViewFloating({
-  roomId, roomTimeline, viewEvent,
-}) {
-  const [reachedBottom, setReachedBottom] = useState(true);
-  const [typingMembers, setTypingMembers] = useState(new Set());
-  const mx = initMatrix.matrixClient;
+function useJumpToEvent(roomTimeline) {
+  const [eventId, setEventId] = useState(null);
 
-  function isSomeoneTyping(members) {
-    const m = members;
-    m.delete(mx.getUserId());
-    if (m.size === 0) return false;
-    return true;
-  }
+  const jumpToEvent = () => {
+    roomTimeline.loadEventTimeline(eventId);
+  };
 
-  function getTypingMessage(members) {
-    const userIds = members;
-    userIds.delete(mx.getUserId());
-    return getUsersActionJsx(roomId, [...userIds], 'typing...');
-  }
-
-  function updateTyping(members) {
-    setTypingMembers(members);
-  }
-  const handleTimelineScroll = (position) => {
-    setReachedBottom(position === 'BOTTOM');
+  const cancelJumpToEvent = () => {
+    roomTimeline.markAllAsRead();
+    setEventId(null);
   };
 
   useEffect(() => {
-    setReachedBottom(true);
-    setTypingMembers(new Set());
-    viewEvent.on('timeline-scroll', handleTimelineScroll);
-    return () => viewEvent.removeListener('timeline-scroll', handleTimelineScroll);
-  }, [roomId]);
+    const readEventId = roomTimeline.getReadUpToEventId();
+    // we only show "Jump to unread" btn only if the event is not in timeline.
+    // if event is in timeline
+    // we will automatically open the timeline from that event position
+    if (!readEventId?.startsWith('~') && !roomTimeline.hasEventInTimeline(readEventId)) {
+      setEventId(readEventId);
+    }
+
+    const handleMarkAsRead = () => setEventId(null);
+    roomTimeline.on(cons.events.roomTimeline.MARKED_AS_READ, handleMarkAsRead);
+
+    return () => {
+      roomTimeline.removeListener(cons.events.roomTimeline.MARKED_AS_READ, handleMarkAsRead);
+      setEventId(null);
+    };
+  }, [roomTimeline]);
+
+  return [!!eventId, jumpToEvent, cancelJumpToEvent];
+}
+
+function useTypingMembers(roomTimeline) {
+  const [typingMembers, setTypingMembers] = useState(new Set());
+
+  const updateTyping = (members) => {
+    const mx = initMatrix.matrixClient;
+    members.delete(mx.getUserId());
+    setTypingMembers(members);
+  };
 
   useEffect(() => {
+    setTypingMembers(new Set());
     roomTimeline.on(cons.events.roomTimeline.TYPING_MEMBERS_UPDATED, updateTyping);
     return () => {
       roomTimeline?.removeListener(cons.events.roomTimeline.TYPING_MEMBERS_UPDATED, updateTyping);
     };
   }, [roomTimeline]);
 
+  return [typingMembers];
+}
+
+function useScrollToBottom(roomTimeline) {
+  const [isAtBottom, setIsAtBottom] = useState(true);
+  const handleAtBottom = (atBottom) => setIsAtBottom(atBottom);
+
+  useEffect(() => {
+    setIsAtBottom(true);
+    roomTimeline.on(cons.events.roomTimeline.AT_BOTTOM, handleAtBottom);
+    return () => roomTimeline.removeListener(cons.events.roomTimeline.AT_BOTTOM, handleAtBottom);
+  }, [roomTimeline]);
+
+  return [isAtBottom, setIsAtBottom];
+}
+
+function RoomViewFloating({
+  roomId, roomTimeline,
+}) {
+  const [isJumpToEvent, jumpToEvent, cancelJumpToEvent] = useJumpToEvent(roomTimeline);
+  const [typingMembers] = useTypingMembers(roomTimeline);
+  const [isAtBottom, setIsAtBottom] = useScrollToBottom(roomTimeline);
+
+  const handleScrollToBottom = () => {
+    roomTimeline.emit(cons.events.roomTimeline.SCROLL_TO_LIVE);
+    setIsAtBottom(true);
+  };
+
   return (
     <>
-      <div className={`room-view__typing${isSomeoneTyping(typingMembers) ? ' room-view__typing--open' : ''}`}>
-        <div className="bouncing-loader"><div /></div>
-        <Text variant="b2">{getTypingMessage(typingMembers)}</Text>
-      </div>
-      <div className={`room-view__STB${reachedBottom ? '' : ' room-view__STB--open'}`}>
+      <div className={`room-view__unread ${isJumpToEvent ? 'room-view__unread--open' : ''}`}>
+        <Button onClick={jumpToEvent} variant="primary">
+          <Text variant="b2">Jump to unread</Text>
+        </Button>
         <IconButton
-          onClick={() => {
-            viewEvent.emit('scroll-to-live');
-            setReachedBottom(true);
-          }}
+          onClick={cancelJumpToEvent}
+          variant="primary"
+          size="extra-small"
+          src={TickMarkIC}
+          tooltipPlacement="bottom"
+          tooltip="Mark as read"
+        />
+      </div>
+      <div className={`room-view__typing${typingMembers.size > 0 ? ' room-view__typing--open' : ''}`}>
+        <div className="bouncing-loader"><div /></div>
+        <Text variant="b2">{getUsersActionJsx(roomId, [...typingMembers], 'typing...')}</Text>
+      </div>
+      <div className={`room-view__STB${isAtBottom ? '' : ' room-view__STB--open'}`}>
+        <IconButton
+          onClick={handleScrollToBottom}
           src={ChevronBottomIC}
           tooltip="Scroll to Bottom"
         />
@@ -76,7 +125,6 @@ function RoomViewFloating({
 RoomViewFloating.propTypes = {
   roomId: PropTypes.string.isRequired,
   roomTimeline: PropTypes.shape({}).isRequired,
-  viewEvent: PropTypes.shape({}).isRequired,
 };
 
 export default RoomViewFloating;

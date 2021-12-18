@@ -30,12 +30,12 @@ import MarkdownIC from '../../../../public/res/ic/outlined/markdown.svg';
 import FileIC from '../../../../public/res/ic/outlined/file.svg';
 import CrossIC from '../../../../public/res/ic/outlined/cross.svg';
 
-const CMD_REGEX = /(^\/|^>[#*@]|:|@)(\S*)$/;
+const CMD_REGEX = /(^\/|:|@)(\S*)$/;
 let isTyping = false;
 let isCmdActivated = false;
 let cmdCursorPos = null;
 function RoomViewInput({
-  roomId, roomTimeline, timelineScroll, viewEvent,
+  roomId, roomTimeline, viewEvent,
 }) {
   const [attachment, setAttachment] = useState(null);
   const [isMarkdown, setIsMarkdown] = useState(settings.isMarkdown);
@@ -46,7 +46,6 @@ function RoomViewInput({
   const uploadInputRef = useRef(null);
   const uploadProgressRef = useRef(null);
   const rightOptionsRef = useRef(null);
-  const escBtnRef = useRef(null);
 
   const TYPING_TIMEOUT = 5000;
   const mx = initMatrix.matrixClient;
@@ -93,38 +92,23 @@ function RoomViewInput({
   function rightOptionsA11Y(A11Y) {
     const rightOptions = rightOptionsRef.current.children;
     for (let index = 0; index < rightOptions.length; index += 1) {
-      rightOptions[index].disabled = !A11Y;
+      rightOptions[index].tabIndex = A11Y ? 0 : -1;
     }
   }
 
   function activateCmd(prefix) {
     isCmdActivated = true;
-    requestAnimationFrame(() => {
-      inputBaseRef.current.style.boxShadow = '0 0 0 1px var(--bg-positive)';
-      escBtnRef.current.style.display = 'block';
-    });
     rightOptionsA11Y(false);
     viewEvent.emit('cmd_activate', prefix);
   }
   function deactivateCmd() {
-    if (inputBaseRef.current !== null) {
-      requestAnimationFrame(() => {
-        inputBaseRef.current.style.boxShadow = 'var(--bs-surface-border)';
-        escBtnRef.current.style.display = 'none';
-      });
-      rightOptionsA11Y(true);
-    }
     isCmdActivated = false;
     cmdCursorPos = null;
+    rightOptionsA11Y(true);
   }
   function deactivateCmdAndEmit() {
     deactivateCmd();
     viewEvent.emit('cmd_deactivate');
-  }
-  function errorCmd() {
-    requestAnimationFrame(() => {
-      inputBaseRef.current.style.boxShadow = '0 0 0 1px var(--bg-danger)';
-    });
   }
   function setCursorPosition(pos) {
     setTimeout(() => {
@@ -163,7 +147,6 @@ function RoomViewInput({
     roomsInput.on(cons.events.roomsInput.UPLOAD_PROGRESS_CHANGES, uploadingProgress);
     roomsInput.on(cons.events.roomsInput.ATTACHMENT_CANCELED, clearAttachment);
     roomsInput.on(cons.events.roomsInput.FILE_UPLOADED, clearAttachment);
-    viewEvent.on('cmd_error', errorCmd);
     viewEvent.on('cmd_fired', firedCmd);
     navigation.on(cons.events.navigation.REPLY_TO_CLICKED, setUpReply);
     if (textAreaRef?.current !== null) {
@@ -177,13 +160,13 @@ function RoomViewInput({
       roomsInput.removeListener(cons.events.roomsInput.UPLOAD_PROGRESS_CHANGES, uploadingProgress);
       roomsInput.removeListener(cons.events.roomsInput.ATTACHMENT_CANCELED, clearAttachment);
       roomsInput.removeListener(cons.events.roomsInput.FILE_UPLOADED, clearAttachment);
-      viewEvent.removeListener('cmd_error', errorCmd);
       viewEvent.removeListener('cmd_fired', firedCmd);
       navigation.removeListener(cons.events.navigation.REPLY_TO_CLICKED, setUpReply);
       if (isCmdActivated) deactivateCmd();
       if (textAreaRef?.current === null) return;
 
       const msg = textAreaRef.current.value;
+      textAreaRef.current.style.height = 'unset';
       inputBaseRef.current.style.backgroundImage = 'unset';
       if (msg.trim() === '') {
         roomsInput.setMessage(roomId, '');
@@ -193,7 +176,8 @@ function RoomViewInput({
     };
   }, [roomId]);
 
-  async function sendMessage() {
+  const sendMessage = async () => {
+    requestAnimationFrame(() => deactivateCmdAndEmit());
     const msgBody = textAreaRef.current.value;
     if (roomsInput.isSending(roomId)) return;
     if (msgBody.trim() === '' && attachment === null) return;
@@ -211,11 +195,10 @@ function RoomViewInput({
     focusInput();
 
     textAreaRef.current.value = roomsInput.getMessage(roomId);
-    viewEvent.emit('scroll-to-live');
     viewEvent.emit('message_sent');
     textAreaRef.current.style.height = 'unset';
     if (replyTo !== null) setReplyTo(null);
-  }
+  };
 
   function processTyping(msg) {
     const isEmptyMsg = msg === '';
@@ -260,33 +243,23 @@ function RoomViewInput({
       return;
     }
     if (!isCmdActivated) activateCmd(cmdPrefix);
-    requestAnimationFrame(() => {
-      inputBaseRef.current.style.boxShadow = '0 0 0 1px var(--bg-caution)';
-    });
     viewEvent.emit('cmd_process', cmdPrefix, cmdSlug);
   }
 
-  function handleMsgTyping(e) {
+  const handleMsgTyping = (e) => {
     const msg = e.target.value;
     recognizeCmd(e.target.value);
     if (!isCmdActivated) processTyping(msg);
-  }
+  };
 
-  function handleKeyDown(e) {
+  const handleKeyDown = (e) => {
     if (e.keyCode === 13 && e.shiftKey === false) {
       e.preventDefault();
-
-      if (isCmdActivated) {
-        viewEvent.emit('cmd_exe');
-      } else sendMessage();
+      sendMessage();
     }
-    if (e.keyCode === 27 && isCmdActivated) {
-      deactivateCmdAndEmit();
-      e.preventDefault();
-    }
-  }
+  };
 
-  function handlePaste(e) {
+  const handlePaste = (e) => {
     if (e.clipboardData === false) {
       return;
     }
@@ -310,19 +283,19 @@ function RoomViewInput({
         }
       }
     }
-  }
+  };
 
   function addEmoji(emoji) {
     textAreaRef.current.value += emoji.unicode;
     textAreaRef.current.focus();
   }
 
-  function handleUploadClick() {
+  const handleUploadClick = () => {
     if (attachment === null) uploadInputRef.current.click();
     else {
       roomsInput.cancelAttachment(roomId);
     }
-  }
+  };
   function uploadFileChange(e) {
     const file = e.target.files.item(0);
     setAttachment(file);
@@ -334,7 +307,7 @@ function RoomViewInput({
   function renderInputs() {
     if (!canISend) {
       return (
-        <Text className="room-input__disallowed">You do not have permission to post to this room</Text>
+        <Text className="room-input__alert">You do not have permission to post to this room</Text>
       );
     }
     return (
@@ -344,21 +317,20 @@ function RoomViewInput({
           <IconButton onClick={handleUploadClick} tooltip={attachment === null ? 'Upload' : 'Cancel'} src={CirclePlusIC} />
         </div>
         <div ref={inputBaseRef} className="room-input__input-container">
-          {roomTimeline.isEncryptedRoom() && <RawIcon size="extra-small" src={ShieldIC} />}
+          {roomTimeline.isEncrypted() && <RawIcon size="extra-small" src={ShieldIC} />}
           <ScrollView autoHide>
             <Text className="room-input__textarea-wrapper">
               <TextareaAutosize
+                id="message-textarea"
                 ref={textAreaRef}
                 onChange={handleMsgTyping}
                 onPaste={handlePaste}
-                onResize={() => timelineScroll.autoReachBottom()}
                 onKeyDown={handleKeyDown}
                 placeholder="Send a message..."
               />
             </Text>
           </ScrollView>
           {isMarkdown && <RawIcon size="extra-small" src={MarkdownIC} />}
-          <button ref={escBtnRef} tabIndex="-1" onClick={deactivateCmdAndEmit} className="btn-cmd-esc" type="button"><Text variant="b3">ESC</Text></button>
         </div>
         <div ref={rightOptionsRef} className="room-input__option-container">
           <IconButton
@@ -423,9 +395,7 @@ function RoomViewInput({
       { attachment !== null && attachFile() }
       <form className="room-input" onSubmit={(e) => { e.preventDefault(); }}>
         {
-          roomTimeline.room.isSpaceRoom()
-            ? <Text className="room-input__space" variant="b1">Spaces are yet to be implemented</Text>
-            : renderInputs()
+          renderInputs()
         }
       </form>
     </>
@@ -434,7 +404,6 @@ function RoomViewInput({
 RoomViewInput.propTypes = {
   roomId: PropTypes.string.isRequired,
   roomTimeline: PropTypes.shape({}).isRequired,
-  timelineScroll: PropTypes.shape({}).isRequired,
   viewEvent: PropTypes.shape({}).isRequired,
 };
 

@@ -4,11 +4,11 @@ import './Divider.scss';
 
 import Text from '../text/Text';
 
-function Divider({ text, variant }) {
-  const dividerClass = ` divider--${variant}`;
+function Divider({ text, variant, align }) {
+  const dividerClass = ` divider--${variant} divider--${align}`;
   return (
     <div className={`divider${dividerClass}`}>
-      {text !== null && <Text className="divider__text" variant="b3">{text}</Text>}
+      {text !== null && <Text className="divider__text" variant="b3" weight="bold">{text}</Text>}
     </div>
   );
 }
@@ -16,11 +16,13 @@ function Divider({ text, variant }) {
 Divider.defaultProps = {
   text: null,
   variant: 'surface',
+  align: 'center',
 };
 
 Divider.propTypes = {
   text: PropTypes.string,
-  variant: PropTypes.oneOf(['surface', 'primary', 'caution', 'danger']),
+  variant: PropTypes.oneOf(['surface', 'primary', 'positive', 'caution', 'danger']),
+  align: PropTypes.oneOf(['left', 'center', 'right']),
 };
 
 export default Divider;

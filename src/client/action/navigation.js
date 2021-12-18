@@ -1,47 +1,48 @@
 import appDispatcher from '../dispatcher';
 import cons from '../state/cons';
 
-function selectTab(tabId) {
+export function selectTab(tabId) {
   appDispatcher.dispatch({
     type: cons.actions.navigation.SELECT_TAB,
     tabId,
   });
 }
 
-function selectSpace(roomId) {
+export function selectSpace(roomId) {
   appDispatcher.dispatch({
     type: cons.actions.navigation.SELECT_SPACE,
     roomId,
   });
 }
 
-function selectRoom(roomId) {
+export function selectRoom(roomId, eventId) {
   appDispatcher.dispatch({
     type: cons.actions.navigation.SELECT_ROOM,
     roomId,
+    eventId,
   });
 }
 
-function openInviteList() {
+export function openInviteList() {
   appDispatcher.dispatch({
     type: cons.actions.navigation.OPEN_INVITE_LIST,
   });
 }
 
-function openPublicRooms(searchTerm) {
+export function openPublicRooms(searchTerm) {
   appDispatcher.dispatch({
     type: cons.actions.navigation.OPEN_PUBLIC_ROOMS,
     searchTerm,
   });
 }
 
-function openCreateRoom() {
+export function openCreateRoom() {
   appDispatcher.dispatch({
     type: cons.actions.navigation.OPEN_CREATE_ROOM,
   });
 }
 
-function openInviteUser(roomId, searchTerm) {
+export function openInviteUser(roomId, searchTerm) {
   appDispatcher.dispatch({
     type: cons.actions.navigation.OPEN_INVITE_USER,
     roomId,
@@ -49,7 +50,7 @@ function openInviteUser(roomId, searchTerm) {
   });
 }
 
-function openProfileViewer(userId, roomId) {
+export function openProfileViewer(userId, roomId) {
   appDispatcher.dispatch({
     type: cons.actions.navigation.OPEN_PROFILE_VIEWER,
     userId,
@@ -57,13 +58,13 @@ function openProfileViewer(userId, roomId) {
   });
 }
 
-function openSettings() {
+export function openSettings() {
   appDispatcher.dispatch({
     type: cons.actions.navigation.OPEN_SETTINGS,
   });
 }
 
-function openEmojiBoard(cords, requestEmojiCallback) {
+export function openEmojiBoard(cords, requestEmojiCallback) {
   appDispatcher.dispatch({
     type: cons.actions.navigation.OPEN_EMOJIBOARD,
     cords,
@@ -71,15 +72,15 @@ function openEmojiBoard(cords, requestEmojiCallback) {
   });
 }
 
-function openReadReceipts(roomId, eventId) {
+export function openReadReceipts(roomId, userIds) {
   appDispatcher.dispatch({
     type: cons.actions.navigation.OPEN_READRECEIPTS,
     roomId,
-    eventId,
+    userIds,
   });
 }
 
-function openRoomOptions(cords, roomId) {
+export function openRoomOptions(cords, roomId) {
   appDispatcher.dispatch({
     type: cons.actions.navigation.OPEN_ROOMOPTIONS,
     cords,
@@ -87,7 +88,7 @@ function openRoomOptions(cords, roomId) {
   });
 }
 
-function replyTo(userId, eventId, body) {
+export function replyTo(userId, eventId, body) {
   appDispatcher.dispatch({
     type: cons.actions.navigation.CLICK_REPLY_TO,
     userId,
@@ -96,18 +97,9 @@ function replyTo(userId, eventId, body) {
   });
 }
 
-export {
-  selectTab,
-  selectSpace,
-  selectRoom,
-  openInviteList,
-  openPublicRooms,
-  openCreateRoom,
-  openInviteUser,
-  openProfileViewer,
-  openSettings,
-  openEmojiBoard,
-  openReadReceipts,
-  openRoomOptions,
-  replyTo,
-};
+export function openSearch(term) {
+  appDispatcher.dispatch({
+    type: cons.actions.navigation.OPEN_SEARCH,
+    term,
+  });
+}
