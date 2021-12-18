@@ -1,9 +1,9 @@
+name: Create release
+
 on:
   push:
     tags:
       - 'v*'
-
-name: Create Release
 
 jobs:
   create-github-release:
@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v22
       - name: Create Release Notes
         uses: actions/github-script@v4.0.2
         with:
