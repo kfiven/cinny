@@ -17,11 +17,14 @@ jobs:
           cache: 'npm'
       - name: Publish
         run: |
-          npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
-          npm ci
-          npm publish
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          npm install
+          npm run build
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: deploybuild
+          path: dist
+          retention-days: 1
 
   create-github-release:
     name: Create GitHub Release
