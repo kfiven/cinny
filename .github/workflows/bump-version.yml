@@ -54,4 +54,4 @@ jobs:
       run: npm version ${{ github.event.inputs.version }}
 
     - name: Push latest version
-      run: git push origin deploy --follow-tags
+      run: git push origin test --follow-tags
