@@ -13,7 +13,7 @@ import {
   openPublicRooms,
   openInviteUser,
 } from '../../../client/action/navigation';
-import { getAllEmoji } from '../emoji-board/custom-emoji';
+import { getEmojiForCompletion } from '../emoji-board/custom-emoji';
 import AsyncSearch from '../../../util/AsyncSearch';
 
 import Text from '../../atoms/text/Text';
@@ -99,7 +99,12 @@ function renderSuggestions({ prefix, option, suggestions }, fireCmd) {
     // Render a custom emoji
     function renderCustomEmoji(emoji) {
       return (
-        <img className="emoji" src={mx.mxcUrlToHttp(emoji.mxc)} alt={`${mx.shortcocde} emoji`} />
+        <img
+          className="emoji"
+          src={mx.mxcUrlToHttp(emoji.mxc)}
+          data-mx-emoticon=""
+          alt={`:${emoji.shortcode}:`}
+        />
       );
     }
 
@@ -205,7 +210,7 @@ function RoomViewCmdBar({ roomId, roomTimeline, viewEvent }) {
         setCmd({ prefix, suggestions: commands });
       },
       ':': () => {
-        const emojis = getAllEmoji(mx);
+        const emojis = getEmojiForCompletion(mx.getRoom(roomId));
         asyncSearch.setup(emojis, { keys: ['shortcode'], isContain: true, limit: 20 });
         setCmd({ prefix, suggestions: emojis.slice(26, 46) });
       },
