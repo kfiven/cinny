@@ -61,4 +61,4 @@ Copyright (c) 2021 Ajay Bura (ajbura) and contributors
 
 Code licensed under the MIT License: <http://opensource.org/licenses/MIT>
 
-Graphics licensed under CC-BY 4.0: <https://creativecommons.org/licenses/by/4.0/>
+Graphics licensed under CC-BY 4.0: <https://creativecommons.org/licenses/by/4.0/> 
