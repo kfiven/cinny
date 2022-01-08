@@ -1,0 +1,30 @@
+@use '../../partials/flex';
+@use '../../partials/text';
+@use '../../partials/dir';
+
+.tab-view {
+    width: 100%;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    padding: 1px;
+}
+
+.tab-view .tab-view-item {
+    border: 1px solid transparent;
+    border-radius: var(--bo-radius);
+    cursor: pointer;
+    width: 100%;
+    min-width: min-content;
+    margin-right: auto;
+    margin-left: auto;
+    padding: 0.5rem;
+    text-align: center;
+    color: var(--tc-surface-normal);
+}
+
+.tab-view .selected {
+    background-color: var(--bg-surface);
+    border-color: var(--bg-surface-border);
+    background-color: var(--bg-surface-border);
+}
