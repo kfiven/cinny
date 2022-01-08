@@ -6,16 +6,37 @@ import EventEmitter from 'events';
 
 import cons from '../../../client/state/cons';
 import navigation from '../../../client/state/navigation';
+import RoomTimelineType from '../../../client/state/RoomTimeline';
 
 import RoomViewHeader from './RoomViewHeader';
 import RoomViewContent from './RoomViewContent';
 import RoomViewFloating from './RoomViewFloating';
 import RoomViewInput from './RoomViewInput';
 import RoomViewCmdBar from './RoomViewCmdBar';
+import RoomViewChat from './RoomViewChat';
+import RoomViewWidgets from "./RoomViewWidgets";
 
+const chatString = 'Chat';
 const viewEvent = new EventEmitter();
 
 function RoomView({ roomTimeline, eventId }) {
+  /**
+   * @typedef Widget
+   * @type {{name: string, type: string, data: object}}
+    */
+  /**
+   * @type {Widget[]} List of Widgets
+   */
+  const widgets = [];
+  /**
+   * @type {[string[], Function]}
+   */
+  const [tabs, setTabs] = React.useState(null);
+  /**
+   * @type {[string | null, Function]}
+   */
+  const [activeTab, setActiveTab] = React.useState(null);
+
   const roomViewRef = useRef(null);
   // eslint-disable-next-line react/prop-types
   const { roomId } = roomTimeline;
@@ -25,7 +46,7 @@ function RoomView({ roomTimeline, eventId }) {
       const roomView = roomViewRef.current;
       roomView.classList.toggle('room-view--dropped');
 
-      const roomViewContent = roomView.children[1];
+      const roomViewContent = roomView.children[2];
       if (isVisible) {
         setTimeout(() => {
           if (!navigation.isRoomSettings) return;
@@ -39,33 +60,53 @@ function RoomView({ roomTimeline, eventId }) {
     };
   }, []);
 
+  useEffect(() => {
+    /**
+     * @type {MatrixEvent[]}
+     */
+    const widgetStateEvents = roomTimeline.room.currentState.getStateEvents('im.vector.modular.widgets');
+
+    if (tabs) return null;
+    if (widgetStateEvents && widgetStateEvents.length === 0) return null;
+
+    widgetStateEvents.forEach((ev) => {
+      const eventContent = ev.getContent();
+      // Check if widget is empty
+      if (Object.entries(eventContent).length !== 0) widgets.push(eventContent);
+    });
+
+    if (widgets.length === 0) return null;
+
+    const tabNames = [chatString];
+    widgets.forEach((w) => tabNames.push(w.name));
+    setActiveTab(chatString);
+    setTabs(tabNames);
+
+    return () => {
+      setTabs(null);
+      setActiveTab(null);
+      widgets.length = 0;
+    };
+  }, [roomTimeline]);
+
   return (
     <div className="room-view" ref={roomViewRef}>
       <RoomViewHeader roomId={roomId} />
-      <div className="room-view__content-wrapper">
-        <div className="room-view__scrollable">
-          <RoomViewContent
-            eventId={eventId}
-            roomTimeline={roomTimeline}
-          />
-          <RoomViewFloating
+      <span>
+        {tabs && activeTab && (
+          <RoomViewWidgets
             roomId={roomId}
-            roomTimeline={roomTimeline}
+            onChange={(tab) => setActiveTab(tab ?? chatString)}
           />
-        </div>
-        <div className="room-view__sticky">
-          <RoomViewInput
-            roomId={roomId}
-            roomTimeline={roomTimeline}
-            viewEvent={viewEvent}
-          />
-          <RoomViewCmdBar
-            roomId={roomId}
-            roomTimeline={roomTimeline}
-            viewEvent={viewEvent}
-          />
-        </div>
-      </div>
+        )}
+      </span>
+      <RoomViewChat
+        roomTimeline={roomTimeline}
+        eventId={eventId}
+        roomId={roomId}
+        viewEvent={viewEvent}
+        hidden={Boolean(activeTab && activeTab !== chatString)}
+      />
     </div>
   );
 }
@@ -74,7 +115,7 @@ RoomView.defaultProps = {
   eventId: null,
 };
 RoomView.propTypes = {
-  roomTimeline: PropTypes.shape({}).isRequired,
+  roomTimeline: PropTypes.instanceOf(RoomTimelineType).isRequired,
   eventId: PropTypes.string,
 };
 
