@@ -7,14 +7,11 @@ import EventEmitter from 'events';
 import cons from '../../../client/state/cons';
 import navigation from '../../../client/state/navigation';
 import RoomTimelineType from '../../../client/state/RoomTimeline';
+import TabView from '../../molecules/tab-view/TabView';
 
 import RoomViewHeader from './RoomViewHeader';
-import RoomViewContent from './RoomViewContent';
-import RoomViewFloating from './RoomViewFloating';
-import RoomViewInput from './RoomViewInput';
-import RoomViewCmdBar from './RoomViewCmdBar';
 import RoomViewChat from './RoomViewChat';
-import RoomViewWidgets from "./RoomViewWidgets";
+import RoomViewWidget from './RoomViewWidget';
 
 const chatString = 'Chat';
 const viewEvent = new EventEmitter();
@@ -22,12 +19,16 @@ const viewEvent = new EventEmitter();
 function RoomView({ roomTimeline, eventId }) {
   /**
    * @typedef Widget
-   * @type {{name: string, type: string, data: object}}
+   * @type {{name: string, type: string, data: object | BigBlueButtWidgetData}}
     */
   /**
-   * @type {Widget[]} List of Widgets
+   * @typedef BigBlueButtWidgetData
+   * @type {{curl: string, title: string}}
    */
-  const widgets = [];
+  /**
+   * @type {[Widget[], Function]} List of Widgets
+   */
+  const [widgetList, setWidgetList] = React.useState(null);
   /**
    * @type {[string[], Function]}
    */
@@ -62,51 +63,88 @@ function RoomView({ roomTimeline, eventId }) {
 
   useEffect(() => {
     /**
+     * Get the list of widgets
      * @type {MatrixEvent[]}
      */
     const widgetStateEvents = roomTimeline.room.currentState.getStateEvents('im.vector.modular.widgets');
 
+    // Should not happen
     if (tabs) return null;
+    // If there are no widgets, return
     if (widgetStateEvents && widgetStateEvents.length === 0) return null;
 
+    // Create a nice list of Widgets
+    const widgets = [];
     widgetStateEvents.forEach((ev) => {
       const eventContent = ev.getContent();
-      // Check if widget is empty
-      if (Object.entries(eventContent).length !== 0) widgets.push(eventContent);
+      // Check if widget is empty (e.g. deleted)
+      if (Object.entries(eventContent).length !== 0) {
+        // We only want the widgets to be https
+        if (eventContent.url?.startsWith('https://')
+          && eventContent.data.curl?.startsWith('https://')) widgets.push(eventContent);
+        else console.log('Widget is not https:', eventContent);
+      }
     });
+    setWidgetList(widgets);
 
+    // If no real widgets, return
     if (widgets.length === 0) return null;
 
+    // Create a list of tabs, incl. the chat tab
     const tabNames = [chatString];
     widgets.forEach((w) => tabNames.push(w.name));
     setActiveTab(chatString);
     setTabs(tabNames);
 
-    return () => {
-      setTabs(null);
-      setActiveTab(null);
-      widgets.length = 0;
-    };
+    return null;
+    // return () => {
+    //   setTabs(null);
+    //   setActiveTab(null);
+    //   widgets.length = 0;
+    // };
   }, [roomTimeline]);
+
+  function getIframe() {
+    if (!activeTab || activeTab === chatString) return (<></>);
+    if (!widgetList) return (<></>);
+    const widget = widgetList.find((w) => w.name === activeTab);
+    console.log(widget);
+
+    return (
+      <iframe
+        className="widget-iframe"
+        src={widget.url}
+        title={`Widget: ${widget.name}`}
+      />
+    );
+  }
 
   return (
     <div className="room-view" ref={roomViewRef}>
       <RoomViewHeader roomId={roomId} />
       <span>
         {tabs && activeTab && (
-          <RoomViewWidgets
-            roomId={roomId}
-            onChange={(tab) => setActiveTab(tab ?? chatString)}
+          <TabView
+            activeTab={activeTab}
+            tabs={tabs}
+            onChange={(tab) => {
+              setActiveTab(tab);
+              console.log('tab:', tab);
+              // console.log('widgets', widgets);
+              // console.log('found:', widgets.find((w) => w.name === tab));
+            }}
           />
         )}
       </span>
       <RoomViewChat
+        classList="room-view__content-wrapper"
         roomTimeline={roomTimeline}
         eventId={eventId}
         roomId={roomId}
         viewEvent={viewEvent}
         hidden={Boolean(activeTab && activeTab !== chatString)}
       />
+      {getIframe()}
     </div>
   );
 }
