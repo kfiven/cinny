@@ -1,9 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import './Toggle.scss';
+import './Checkbox.scss';
 
-function Toggle({ isActive, onToggle, disabled }) {
-  const className = `toggle${isActive ? ' toggle--active' : ''}`;
+function Checkbox({
+  variant, isActive, onToggle, disabled,
+}) {
+  const className = `checkbox checkbox-${variant}${isActive ? ' checkbox--active' : ''}`;
   if (onToggle === null) return <span className={className} />;
   return (
     // eslint-disable-next-line jsx-a11y/control-has-associated-label
@@ -16,16 +18,18 @@ function Toggle({ isActive, onToggle, disabled }) {
   );
 }
 
-Toggle.defaultProps = {
+Checkbox.defaultProps = {
+  variant: 'primary',
   isActive: false,
-  disabled: false,
   onToggle: null,
+  disabled: false,
 };
 
-Toggle.propTypes = {
+Checkbox.propTypes = {
+  variant: PropTypes.oneOf(['primary', 'positive', 'caution', 'danger']),
   isActive: PropTypes.bool,
   onToggle: PropTypes.func,
   disabled: PropTypes.bool,
 };
 
-export default Toggle;
+export default Checkbox;

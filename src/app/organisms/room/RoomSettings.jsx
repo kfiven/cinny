@@ -16,6 +16,9 @@ import { MenuHeader, MenuItem } from '../../atoms/context-menu/ContextMenu';
 import RoomProfile from '../../molecules/room-profile/RoomProfile';
 import RoomNotification from '../../molecules/room-notification/RoomNotification';
 import RoomVisibility from '../../molecules/room-visibility/RoomVisibility';
+import RoomAliases from '../../molecules/room-aliases/RoomAliases';
+import RoomHistoryVisibility from '../../molecules/room-history-visibility/RoomHistoryVisibility';
+import RoomEncryption from '../../molecules/room-encryption/RoomEncryption';
 
 import SettingsIC from '../../../../public/res/ic/outlined/settings.svg';
 import SearchIC from '../../../../public/res/ic/outlined/search.svg';
@@ -27,25 +30,33 @@ import LeaveArrowIC from '../../../../public/res/ic/outlined/leave-arrow.svg';
 
 import { useForceUpdate } from '../../hooks/useForceUpdate';
 
+const tabText = {
+  GENERAL: 'General',
+  SEARCH: 'Search',
+  PERMISSIONS: 'Permissions',
+  SECURITY: 'Security',
+  ADVANCED: 'Advanced',
+};
+
 const tabItems = [{
   iconSrc: SettingsIC,
-  text: 'General',
+  text: tabText.GENERAL,
   disabled: false,
 }, {
   iconSrc: SearchIC,
-  text: 'Search',
+  text: tabText.SEARCH,
   disabled: false,
 }, {
   iconSrc: ShieldUserIC,
-  text: 'Permissions',
+  text: tabText.PERMISSIONS,
   disabled: false,
 }, {
   iconSrc: LockIC,
-  text: 'Security',
+  text: tabText.SECURITY,
   disabled: false,
 }, {
   iconSrc: InfoIC,
-  text: 'Advanced',
+  text: tabText.ADVANCED,
   disabled: false,
 }];
 
@@ -71,14 +82,36 @@ function GeneralSettings({ roomId }) {
         <MenuItem variant="danger" onClick={() => roomActions.leave(roomId)} iconSrc={LeaveArrowIC}>Leave</MenuItem>
       </div>
       <div className="room-settings__card">
-        <MenuHeader>Visibility (who can join)</MenuHeader>
+        <MenuHeader>Room visibility (who can join)</MenuHeader>
         <RoomVisibility roomId={roomId} />
+      </div>
+      <div className="room-settings__card">
+        <MenuHeader>Room addresses</MenuHeader>
+        <RoomAliases roomId={roomId} />
       </div>
     </>
   );
 }
 
 GeneralSettings.propTypes = {
+  roomId: PropTypes.string.isRequired,
+};
+
+function SecuritySettings({ roomId }) {
+  return (
+    <>
+      <div className="room-settings__card">
+        <MenuHeader>Encryption</MenuHeader>
+        <RoomEncryption roomId={roomId} />
+      </div>
+      <div className="room-settings__card">
+        <MenuHeader>Message history visibility (Who can read history)</MenuHeader>
+        <RoomHistoryVisibility roomId={roomId} />
+      </div>
+    </>
+  );
+}
+SecuritySettings.propTypes = {
   roomId: PropTypes.string.isRequired,
 };
 
@@ -122,7 +155,8 @@ function RoomSettings({ roomId }) {
             onSelect={handleTabChange}
           />
           <div className="room-settings__cards-wrapper">
-            {selectedTab.text === tabItems[0].text && <GeneralSettings roomId={roomId} />}
+            {selectedTab.text === tabText.GENERAL && <GeneralSettings roomId={roomId} />}
+            {selectedTab.text === tabText.SECURITY && <SecuritySettings roomId={roomId} />}
           </div>
         </div>
       </ScrollView>
