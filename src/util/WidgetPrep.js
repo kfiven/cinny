@@ -54,7 +54,9 @@ class RoomWidget {
   }
 
   get widgetNames() {
-    return this.widgets.map((w) => w.name);
+    const names = this.widgets.map((w) => w.name);
+    // names.unshift("Chat");
+    return names;
   }
 
   widgetByName(name) {

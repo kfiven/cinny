@@ -18,26 +18,13 @@ const viewEvent = new EventEmitter();
 
 function RoomView({ roomTimeline, eventId }) {
   /**
-   * @typedef Widget
-   * @type {{name: string, type: string, data: object | BigBlueButtWidgetData}}
-    */
-  /**
-   * @typedef BigBlueButtWidgetData
-   * @type {{curl: string, title: string}}
+   * @type {[RoomWidget, Function]} List of Widgets
    */
-  /**
-   * @type {[Widget[], Function]} List of Widgets
-   */
-  // const [widgetList, setWidgetList] = React.useState(null);
   const [widgetClass, setWidgetClass] = React.useState(null);
-  /**
-   * @type {[string[], Function]}
-   */
-  const [tabs, setTabs] = React.useState(null);
   /**
    * @type {[string | null, Function]}
    */
-  const [activeTab, setActiveTab] = React.useState(null);
+  const [activeTab, setActiveTab] = React.useState(chatString);
 
   const roomViewRef = useRef(null);
   // eslint-disable-next-line react/prop-types
@@ -62,27 +49,17 @@ function RoomView({ roomTimeline, eventId }) {
     };
   }, []);
 
+  // For room widgets on room change
   useEffect(() => {
-    const widgets = new RoomWidget(roomTimeline.room);
-    const widgetsObj = widgets.widgets;
-    // setWidgetList(widgetsObj);
-    setWidgetClass(widgets);
-
-    // If no real widgets, return
-    if (widgetsObj.length === 0) return null;
-
-    // Create a list of tabs, incl. the chat tab
-
-    const tabNames = widgets.widgetNames;
-    tabNames.unshift(chatString);
+    // Needs to be done on room change
+    setWidgetClass(new RoomWidget(roomTimeline.room));
+    // Reset to Chat tab
     setActiveTab(chatString);
-    setTabs(tabNames);
-
-    return null;
   }, [roomTimeline]);
 
+  // Get Iframe if a widget is selected
   function getIframe() {
-    if (!activeTab || activeTab === chatString) return (<></>);
+    if (activeTab === chatString) return (<></>);
     if (widgetClass.widgets.length === 0) return (<></>);
 
     const widget = widgetClass.widgetByName(activeTab);
@@ -101,16 +78,20 @@ function RoomView({ roomTimeline, eventId }) {
     <div className="room-view" ref={roomViewRef}>
       <RoomViewHeader roomId={roomId} />
       <span>
-        {tabs && activeTab && (
+        {widgetClass
+          && widgetClass.widgetNames
+          && widgetClass.widgetNames.length !== 0
+          && activeTab
+          && (
           <TabView
             activeTab={activeTab}
-            tabs={tabs}
+            tabs={[chatString, ...widgetClass.widgetNames]}
             onChange={(tab) => {
               setActiveTab(tab);
               console.log('tab:', tab);
             }}
           />
-        )}
+          )}
       </span>
       <RoomViewChat
         classList="room-view__content-wrapper"
