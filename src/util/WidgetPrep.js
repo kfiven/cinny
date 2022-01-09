@@ -20,7 +20,7 @@
  * @type {{
  *   name: string | null,
  *   type: string | "bigbluebutton",
- *   url: string,
+ *   _urlRaw: string,
  *   creatorUserId: string,
  *   eventType: string | "im.vector.modular.widgets" | "m.widget",
  *   data: object | BigBlueButtWidgetData | null,
@@ -31,6 +31,11 @@
 class RoomWidget {
   constructor(room) {
     this.room = room;
+    this.matrixClient = room.client;
+
+    this.userId = this.matrixClient.getUserId();
+    this.user = this.matrixClient.getUser(this.userId);
+
     /**
      * @type {Widget[]}
      */
@@ -42,44 +47,13 @@ class RoomWidget {
 
   /**
    * @private
-   * Add "m.widgets" room-based Version 2 widgets
-   * @see https://docs.google.com/document/d/1uPF7XWY_dXTKVKV7jZQ2KmsI19wn9-kFRgQ1tFQP7wQ (Proposed) Version 2.0
-   * @see https://github.com/matrix-org/matrix-doc/issues/1236
-   * @todo keep an eye on this
-   * @todo string interpolation
-   */
-  fetchWidgetsMatrix() {
-    this.fetchWidgets('m.widgets')
-      .forEach((w) => {
-        this.widgets.push({
-          name: w.content.name, // OPTIONAL
-          type: w.content.type, // e.g. "m.grafana"
-          url: w.content.url, // Only https and ~~http~~
-          data: w.content.data,
-          eventType: w.event.type, // m.matrix
-          // User's ID (should be the same as ev.event.sender)
-          creatorUserId: w.content.creatorUserId,
-          matrixWidgetAdditionalData: {
-            waitForIframeLoad: w.content.waitForIframeLoad,
-            stateKey: w.event.state_key,
-          },
-        });
-      });
-  }
-
-  /**
-   * @private
    * @param {string} widgetType Widget type to search for
-   * @param {Function} howToAdd how to add the widget
    * @returns {{content: object, event: object}}
    */
   fetchWidgets(widgetType) {
-    const tempList = [];
     const widgetStateEvents = this.room.currentState.getStateEvents(widgetType);
 
-    // If there are no widgets, return
-    if (widgetStateEvents && widgetStateEvents.length === 0) return tempList;
-
+    const tempList = [];
     widgetStateEvents.forEach((ev) => {
       const eventContent = ev.getContent();
       // Check if widget is empty (e.g. deleted)
@@ -103,6 +77,34 @@ class RoomWidget {
 
   /**
    * @private
+   * Add "m.widgets" room-based Version 2 widgets
+   * @see https://docs.google.com/document/d/1uPF7XWY_dXTKVKV7jZQ2KmsI19wn9-kFRgQ1tFQP7wQ (Proposed) Version 2.0
+   * @see https://github.com/matrix-org/matrix-doc/issues/1236
+   * @todo keep an eye on this
+   * @todo string interpolation
+   */
+  fetchWidgetsMatrix() {
+    this.fetchWidgets('m.widgets')
+      .forEach((w) => {
+        this.widgets.push({
+          name: w.content.name, // OPTIONAL
+          type: w.content.type, // e.g. "m.grafana"
+          _urlRaw: w.content.url, // Only https and ~~http~~
+          url: this.doUrlStringInterpolation(w.content.url),
+          data: w.content.data,
+          eventType: w.event.type, // m.matrix
+          // User's ID (should be the same as ev.event.sender)
+          creatorUserId: w.content.creatorUserId,
+          matrixWidgetAdditionalData: {
+            waitForIframeLoad: w.content.waitForIframeLoad,
+            stateKey: w.event.state_key,
+          },
+        });
+      });
+  }
+
+  /**
+   * @private
    * Add "im.vector.modular.widgets" widgets, riot's / element's format
    * @see https://docs.google.com/document/d/1TiWNDcEOULeRYQpkJHQDjgIW32ohIJSi5MKv9oRdzCo
    * @todo Missing url $key interpolation
@@ -113,12 +115,28 @@ class RoomWidget {
       this.widgets.push({
         name: w.content.name, // OPTIONAL
         type: w.content.type,
-        url: w.content.url,
+        _urlRaw: w.content.url,
+        url: this.doUrlStringInterpolation(w.content.url),
         data: w.content.data,
         creatorUserId: w.content.sender,
         eventType: w.event.type, // vector widgets
       });
     });
+  }
+
+  /**
+   * @private
+   * @param {string} url Url to interpolate
+   * @returns {string}
+   */
+  doUrlStringInterpolation(url) {
+    // Vector spec also mentions URL-individual replacements
+    // Here, none are taken
+    return url
+      .replace('$matrix_user_id', this.userId)
+      .replace('$matrix_room_id', this.room.name)
+      .replace('$matrix_display_name', this.user.displayName)
+      .replace('$matrix_avatar_url', this.user.avatarUrl);
   }
 
   get widgetNames() {
