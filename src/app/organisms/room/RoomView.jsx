@@ -51,10 +51,8 @@ function RoomView({ roomTimeline, eventId }) {
 
   // For room widgets on room change
   useEffect(() => {
-    // Needs to be done on room change
-    setWidgetClass(new RoomWidget(roomTimeline.room));
-    // Reset to Chat tab
-    setActiveTab(chatString);
+    setWidgetClass(new RoomWidget(roomTimeline.room)); // Needs to be done on room change
+    setActiveTab(chatString); // Reset to Chat tab
   }, [roomTimeline]);
 
   // Get Iframe if a widget is selected
