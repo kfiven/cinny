@@ -11,7 +11,7 @@ import TabView from '../../molecules/tab-view/TabView';
 
 import RoomViewHeader from './RoomViewHeader';
 import RoomViewChat from './RoomViewChat';
-import RoomViewWidget from './RoomViewWidget';
+import RoomWidget from '../../../util/WidgetPrep';
 
 const chatString = 'Chat';
 const viewEvent = new EventEmitter();
@@ -28,7 +28,8 @@ function RoomView({ roomTimeline, eventId }) {
   /**
    * @type {[Widget[], Function]} List of Widgets
    */
-  const [widgetList, setWidgetList] = React.useState(null);
+  // const [widgetList, setWidgetList] = React.useState(null);
+  const [widgetClass, setWidgetClass] = React.useState(null);
   /**
    * @type {[string[], Function]}
    */
@@ -62,52 +63,29 @@ function RoomView({ roomTimeline, eventId }) {
   }, []);
 
   useEffect(() => {
-    /**
-     * Get the list of widgets
-     * @type {MatrixEvent[]}
-     */
-    const widgetStateEvents = roomTimeline.room.currentState.getStateEvents('im.vector.modular.widgets');
-
-    // Should not happen
-    if (tabs) return null;
-    // If there are no widgets, return
-    if (widgetStateEvents && widgetStateEvents.length === 0) return null;
-
-    // Create a nice list of Widgets
-    const widgets = [];
-    widgetStateEvents.forEach((ev) => {
-      const eventContent = ev.getContent();
-      // Check if widget is empty (e.g. deleted)
-      if (Object.entries(eventContent).length !== 0) {
-        // We only want the widgets to be https
-        if (eventContent.url?.startsWith('https://')
-          && eventContent.data.curl?.startsWith('https://')) widgets.push(eventContent);
-        else console.log('Widget is not https:', eventContent);
-      }
-    });
-    setWidgetList(widgets);
+    const widgets = new RoomWidget(roomTimeline.room);
+    const widgetsObj = widgets.widgets;
+    // setWidgetList(widgetsObj);
+    setWidgetClass(widgets);
 
     // If no real widgets, return
-    if (widgets.length === 0) return null;
+    if (widgetsObj.length === 0) return null;
 
     // Create a list of tabs, incl. the chat tab
-    const tabNames = [chatString];
-    widgets.forEach((w) => tabNames.push(w.name));
+
+    const tabNames = widgets.widgetNames;
+    tabNames.unshift(chatString);
     setActiveTab(chatString);
     setTabs(tabNames);
 
     return null;
-    // return () => {
-    //   setTabs(null);
-    //   setActiveTab(null);
-    //   widgets.length = 0;
-    // };
   }, [roomTimeline]);
 
   function getIframe() {
     if (!activeTab || activeTab === chatString) return (<></>);
-    if (!widgetList) return (<></>);
-    const widget = widgetList.find((w) => w.name === activeTab);
+    if (widgetClass.widgets.length === 0) return (<></>);
+
+    const widget = widgetClass.widgetByName(activeTab);
     console.log(widget);
 
     return (
@@ -130,8 +108,6 @@ function RoomView({ roomTimeline, eventId }) {
             onChange={(tab) => {
               setActiveTab(tab);
               console.log('tab:', tab);
-              // console.log('widgets', widgets);
-              // console.log('found:', widgets.find((w) => w.name === tab));
             }}
           />
         )}
