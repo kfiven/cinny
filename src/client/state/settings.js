@@ -16,6 +16,8 @@ function setSettings(key, value) {
   localStorage.setItem('settings', JSON.stringify(settings));
 }
 
+const widgetUrlPrivacySettingsKey = 'widget_url_privacy_settings';
+
 class Settings extends EventEmitter {
   constructor() {
     super();
@@ -145,6 +147,29 @@ class Settings extends EventEmitter {
     };
 
     actions[action.type]?.();
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  get getWidgetUrlPrivacySettings() {
+    const settings = localStorage.getItem(widgetUrlPrivacySettingsKey);
+    if (settings === null) return null;
+    return JSON.parse(settings);
+  }
+
+  getWidgetUrlPrivacySetting(url) {
+    const settings = this.getWidgetUrlPrivacySettings;
+    return settings.find((s) => s.domain === url)?.isAllowed ?? false;
+  }
+
+  setWidgetUrlPrivacySetting(url, isAllowed) {
+    const settings = this.getWidgetUrlPrivacySettings ?? [];
+
+    const di = settings.findIndex((d) => d.domain === url);
+    // FindIndex returns -1 if not found
+    if (di !== -1) settings[di].isAllowed = isAllowed;
+    else settings.push({ domain: url, isAllowed });
+
+    localStorage.setItem(widgetUrlPrivacySettingsKey, JSON.stringify(settings));
   }
 }
 

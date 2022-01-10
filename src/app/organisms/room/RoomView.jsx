@@ -12,6 +12,9 @@ import TabView from '../../molecules/tab-view/TabView';
 import RoomViewHeader from './RoomViewHeader';
 import RoomViewChat from './RoomViewChat';
 import RoomWidget from '../../../util/WidgetPrep';
+import settings from '../../../client/state/settings';
+import Button from '../../atoms/button/Button';
+import Text from '../../atoms/text/Text';
 
 const chatString = 'Chat';
 const viewEvent = new EventEmitter();
@@ -61,7 +64,25 @@ function RoomView({ roomTimeline, eventId }) {
     if (widgetClass.widgets.length === 0) return (<></>);
 
     const widget = widgetClass.widgetByName(activeTab);
-    console.log(widget);
+
+    const domain = (new URL(widget.url)).hostname;
+    const isAllowed = settings.getWidgetUrlPrivacySetting(domain) ?? false;
+
+    if (isAllowed !== true) {
+      return (
+        <div className="widget-blocked">
+          <Text>Widget is not yet in your list of trusted domains</Text>
+          <Button
+            variant="primary"
+            onClick={() => {
+              settings.setWidgetUrlPrivacySetting((new URL(widget.url).hostname), true);
+            }}
+          >
+            Allow
+          </Button>
+        </div>
+      );
+    }
 
     return (
       <iframe
@@ -86,7 +107,6 @@ function RoomView({ roomTimeline, eventId }) {
             tabs={[chatString, ...widgetClass.widgetNames]}
             onChange={(tab) => {
               setActiveTab(tab);
-              console.log('tab:', tab);
             }}
           />
           )}

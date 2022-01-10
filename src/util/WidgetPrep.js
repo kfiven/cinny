@@ -21,6 +21,7 @@
  *   name: string | null,
  *   type: string | "bigbluebutton",
  *   _urlRaw: string,
+ *   url: string,
  *   creatorUserId: string,
  *   eventType: string | "im.vector.modular.widgets" | "m.widget",
  *   data: object | BigBlueButtWidgetData | null,

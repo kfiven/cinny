@@ -18,6 +18,7 @@ import PopupWindow, { PWContentSelector } from '../../molecules/popup-window/Pop
 import SettingTile from '../../molecules/setting-tile/SettingTile';
 import ImportE2ERoomKeys from '../../molecules/import-export-e2e-room-keys/ImportE2ERoomKeys';
 import ExportE2ERoomKeys from '../../molecules/import-export-e2e-room-keys/ExportE2ERoomKeys';
+import ManageWidgetPrivacy from '../../molecules/manage-widget-privacy/ManageWidgetPrivacy';
 
 import ProfileEditor from '../profile-editor/ProfileEditor';
 
@@ -136,6 +137,17 @@ function SecuritySection() {
           <>
             <Text variant="b3">{'To decrypt older messages, Export E2EE room keys from Element (Settings > Security & Privacy > Encryption > Cryptography) and import them here. Imported keys are encrypted so you\'ll have to enter the password you set in order to decrypt it.'}</Text>
             <ImportE2ERoomKeys />
+          </>
+        )}
+      />
+      <SettingTile
+        title="Widgets integration"
+        content={(
+          <>
+            {settings.changeWidgetPrivacy}
+            <Text variant="b3">Room widgets are isolated WebApps (iframe) room administrators can create for a specific room.</Text>
+            <Text variant="b3">However, by allowing to loading and show external websites your IP address might be leaked.</Text>
+            <ManageWidgetPrivacy onClick={settings.changeWidgetPrivacy} />
           </>
         )}
       />
