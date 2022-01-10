@@ -45,3 +45,12 @@
   align-self: center;
   margin-top: 5rem;
 }
+
+.widget-iframe {
+  height: calc(100% - var(--header-height) - 2.5rem);
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: var(--bo-radius);
+  padding: .25rem;
+}
+

@@ -20,6 +20,9 @@ const chatString = 'Chat';
 const viewEvent = new EventEmitter();
 
 function RoomView({ roomTimeline, eventId }) {
+  // used to reload the component
+  const [, updateState] = React.useState({});
+
   /**
    * @type {[RoomWidget, Function]} List of Widgets
    */
@@ -76,6 +79,7 @@ function RoomView({ roomTimeline, eventId }) {
             variant="primary"
             onClick={() => {
               settings.setWidgetUrlPrivacySetting((new URL(widget.url).hostname), true);
+              updateState({}); // Reload component
             }}
           >
             Allow
