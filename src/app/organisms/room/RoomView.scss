@@ -47,6 +47,7 @@
 }
 
 .widget-iframe {
+  /* 100% would mess up the hight of the header */
   height: calc(100% - var(--header-height) - 2.5rem);
   width: 100%;
   border: 1px solid transparent;
