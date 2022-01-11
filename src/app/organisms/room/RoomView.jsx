@@ -15,6 +15,8 @@ import RoomWidget from '../../../util/WidgetPrep';
 import settings from '../../../client/state/settings';
 import Button from '../../atoms/button/Button';
 import Text from '../../atoms/text/Text';
+import IconButton from '../../atoms/button/IconButton';
+import ExternalIC from '../../../../public/res/ic/outlined/external.svg';
 
 const chatString = 'Chat';
 const viewEvent = new EventEmitter();
@@ -61,6 +63,7 @@ function RoomView({ roomTimeline, eventId }) {
     setActiveTab(chatString); // Reset to Chat tab
   }, [roomTimeline]);
 
+  let currentWidget = null;
   // Get Iframe if a widget is selected
   function getIframe() {
     if (activeTab === chatString) return (<></>);
@@ -88,6 +91,8 @@ function RoomView({ roomTimeline, eventId }) {
       );
     }
 
+    currentWidget = widget;
+
     return (
       <iframe
         className="widget-iframe"
@@ -106,13 +111,27 @@ function RoomView({ roomTimeline, eventId }) {
           && widgetClass.widgetNames.length !== 0
           && activeTab
           && (
-          <TabView
-            activeTab={activeTab}
-            tabs={[chatString, ...widgetClass.widgetNames]}
-            onChange={(tab) => {
-              setActiveTab(tab);
-            }}
-          />
+            <div className="room-widget-tab">
+              <TabView
+                activeTab={activeTab}
+                tabs={[chatString, ...widgetClass.widgetNames]}
+                onChange={(tab) => {
+                  setActiveTab(tab);
+                }}
+              />
+              <IconButton
+                disabled={activeTab === chatString}
+                tooltip={activeTab === chatString
+                  ? 'The chat cannot be popped out'
+                  : 'Popout current widget'}
+                src={ExternalIC}
+                size="extra-small"
+                onClick={() => {
+                  window.open(currentWidget.url, currentWidget.name, 'width=800,height=600');
+                  setActiveTab(chatString);
+                }}
+              />
+            </div>
           )}
       </span>
       <RoomViewChat

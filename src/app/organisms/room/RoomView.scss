@@ -55,3 +55,7 @@
   padding: .25rem;
 }
 
+.room-widget-tab {
+  display: grid;
+  grid-template-columns: auto 2.5rem;
+}
