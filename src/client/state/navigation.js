@@ -126,13 +126,6 @@ class Navigation extends EventEmitter {
           action.userIds,
         );
       },
-      [cons.actions.navigation.OPEN_ROOMOPTIONS]: () => {
-        this.emit(
-          cons.events.navigation.ROOMOPTIONS_OPENED,
-          action.cords,
-          action.roomId,
-        );
-      },
       [cons.actions.navigation.CLICK_REPLY_TO]: () => {
         this.emit(
           cons.events.navigation.REPLY_TO_CLICKED,
@@ -145,6 +138,15 @@ class Navigation extends EventEmitter {
         this.emit(
           cons.events.navigation.SEARCH_OPENED,
           action.term,
+        );
+      },
+      [cons.actions.navigation.OPEN_REUSABLE_CONTEXT_MENU]: () => {
+        this.emit(
+          cons.events.navigation.REUSABLE_CONTEXT_MENU_OPENED,
+          action.placement,
+          action.cords,
+          action.render,
+          action.afterClose,
         );
       },
     };
