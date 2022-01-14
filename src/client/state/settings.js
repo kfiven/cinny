@@ -157,7 +157,7 @@ class Settings extends EventEmitter {
   }
 
   getWidgetUrlPrivacySetting(url) {
-    const settings = this.getWidgetUrlPrivacySettings;
+    const settings = this.getWidgetUrlPrivacySettings ?? [];
     return settings.find((s) => s.domain === url)?.isAllowed ?? false;
   }
 
