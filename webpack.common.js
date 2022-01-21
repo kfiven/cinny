@@ -50,14 +50,14 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({ template: './public/index.html' }),
     new FaviconsWebpackPlugin({
-      logo: './public/res/svg/cinny.svg',
+      logo: './public/res/svg/ritual.svg',
       mode: 'webapp',
       devMode: 'light',
       favicons: {
-        appName: 'Cinny',
-        appDescription: 'Yet another matrix client',
-        developerName: 'Ajay Bura',
-        developerURL: 'https://github.com/ajbura',
+        appName: 'Ritual-Expert',
+        appDescription: 'Your home to your relationship',
+        developerName: 'Gilad Meir',
+        developerURL: 'https://github.com/ritual-app',
         icons: {
           coast: false,
           yandex: false,

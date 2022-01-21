@@ -108,6 +108,7 @@ function SideBar() {
 
     return noti;
   }
+
   function getDMsNoti() {
     if (roomList.directs.size === 0) return null;
     let noti = null;
@@ -123,10 +124,25 @@ function SideBar() {
     return noti;
   }
 
+  function getMemsNoti() {
+    if (roomList.directs.size === 0) return null;
+    let noti = null;
+
+    [...roomList.directs].forEach((roomId) => {
+      if (!notifications.hasNoti(roomId)) return;
+      if (noti === null) noti = { total: 0, highlight: 0 };
+      const childNoti = notifications.getNoti(roomId);
+      noti.total += childNoti.total;
+      noti.highlight += childNoti.highlight;
+    });
+
+    return noti;
+  }
   // TODO: bellow operations are heavy.
   // refactor this component into more smaller components.
   const dmsNoti = getDMsNoti();
   const homeNoti = getHomeNoti();
+  const memsNoti = getMemsNoti();
 
   return (
     <div className="sidebar">
@@ -151,6 +167,15 @@ function SideBar() {
                 isUnread={dmsNoti !== null}
                 notificationCount={dmsNoti !== null ? abbreviateNumber(dmsNoti.total) : 0}
                 isAlert={dmsNoti?.highlight > 0}
+              />
+              <SidebarAvatar
+                active={selectedTab === cons.tabs.MEMBERS}
+                onClick={() => selectTab(cons.tabs.MEMBERS)}
+                tooltip="Members"
+                iconSrc={UserIC}
+                isUnread={memsNoti !== null}
+                notificationCount={memsNoti !== null ? abbreviateNumber(memsNoti.total) : 0}
+                isAlert={memsNoti?.highlight > 0}
               />
             </div>
             <div className="sidebar-divider" />

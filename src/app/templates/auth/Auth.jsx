@@ -21,7 +21,7 @@ import Avatar from '../../atoms/avatar/Avatar';
 import ContextMenu, { MenuItem, MenuHeader } from '../../atoms/context-menu/ContextMenu';
 
 import ChevronBottomIC from '../../../../public/res/ic/outlined/chevron-bottom.svg';
-import CinnySvg from '../../../../public/res/svg/cinny.svg';
+import RitualSvg from '../../../../public/res/svg/ritual.svg';
 import SSOButtons from '../../molecules/sso-buttons/SSOButtons';
 
 const LOCALPART_SIGNUP_REGEX = /^[a-z0-9_\-.=/]+$/;
@@ -98,7 +98,7 @@ function Homeserver({ onChange }) {
       }
       setHs({ selected: hsList[selectedHs], list: hsList });
     } catch {
-      setHs({ selected: 'matrix.org', list: ['matrix.org'] });
+      setHs({ selected: 'matrix.ritual-app.com', list: ['matrix.ritual-app.com'] });
     }
   }, []);
 
@@ -509,9 +509,9 @@ function AuthCard() {
 
 function Auth() {
   const [loginToken, setLoginToken] = useState(getUrlPrams('loginToken'));
-
   useEffect(async () => {
     if (!loginToken) return;
+    localStorage.setItem(cons.secretKey.BASE_URL, 'https://matrix.ritual-app.com');
     if (localStorage.getItem(cons.secretKey.BASE_URL) === undefined) {
       setLoginToken(null);
       return;
@@ -519,7 +519,6 @@ function Auth() {
     const baseUrl = localStorage.getItem(cons.secretKey.BASE_URL);
     try {
       await auth.loginWithToken(baseUrl, loginToken);
-
       const { href } = window.location;
       window.location.replace(href.slice(0, href.indexOf('?')));
     } catch {
@@ -535,9 +534,9 @@ function Auth() {
           {!loginToken && (
             <div className="auth-card">
               <Header>
-                <Avatar size="extra-small" imageSrc={CinnySvg} />
+                <Avatar size="extra-small" imageSrc={RitualSvg} />
                 <TitleWrapper>
-                  <Text variant="h2" weight="medium">Cinny</Text>
+                  <Text variant="h2" weight="medium">RitualX</Text>
                 </TitleWrapper>
               </Header>
               <div className="auth-card__content">
@@ -549,16 +548,7 @@ function Auth() {
 
         <div className="auth-footer">
           <Text variant="b2">
-            <a href="https://cinny.in" target="_blank" rel="noreferrer">About</a>
-          </Text>
-          <Text variant="b2">
-            <a href="https://github.com/ajbura/cinny/releases" target="_blank" rel="noreferrer">{`v${cons.version}`}</a>
-          </Text>
-          <Text variant="b2">
-            <a href="https://twitter.com/cinnyapp" target="_blank" rel="noreferrer">Twitter</a>
-          </Text>
-          <Text variant="b2">
-            <a href="https://matrix.org" target="_blank" rel="noreferrer">Powered by Matrix</a>
+            <a href="https://ritual-app.com" target="_blank" rel="noreferrer">About</a>
           </Text>
         </div>
       </div>

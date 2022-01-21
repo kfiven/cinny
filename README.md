@@ -1,4 +1,4 @@
-# Cinny
+# RitualX
 
 ## Table of Contents
 
@@ -8,7 +8,7 @@
 
 ## About <a name = "about"></a>
 
-Cinny is a [Matrix](https://matrix.org) client focusing primarily on simple, elegant and secure interface.
+RitualX is a [Matrix](https://matrix.org) client focusing primarily on simple, elegant and secure interface.
 
 ![preview](https://github.com/ajbura/cinny-site/blob/master/assets/preview-light.png)
 

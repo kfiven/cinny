@@ -1,12 +1,6 @@
 {
-  "defaultHomeserver": 5,
+  "defaultHomeserver": 1,
   "homeserverList": [
-    "boba.best",
-    "converser.eu",
-    "envs.net",
-    "halogen.city",
-    "kde.org",
-    "matrix.org",
-    "mozilla.modular.im"
+    "matrix.ritual-app.com"
   ]
 }

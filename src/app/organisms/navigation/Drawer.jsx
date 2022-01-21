@@ -13,6 +13,7 @@ import DrawerHeader from './DrawerHeader';
 import DrawerBreadcrumb from './DrawerBreadcrumb';
 import Home from './Home';
 import Directs from './Directs';
+import Members from '../../../ritual-components/Members';
 
 function Drawer() {
   const [systemState, setSystemState] = useState(null);
@@ -22,14 +23,19 @@ function Drawer() {
   function onTabSelected(tabId) {
     setSelectedTab(tabId);
   }
+
   function onSpaceSelected(roomId) {
     setSpaceId(roomId);
   }
+
   function onRoomLeaved(roomId) {
     const lRoomIndex = navigation.selectedSpacePath.indexOf(roomId);
     if (lRoomIndex === -1) return;
-    if (lRoomIndex === 0) selectTab(cons.tabs.HOME);
-    else selectSpace(navigation.selectedSpacePath[lRoomIndex - 1]);
+    if (lRoomIndex === 0) {
+      selectTab(cons.tabs.HOME);
+    } else {
+      selectSpace(navigation.selectedSpacePath[lRoomIndex - 1]);
+    }
   }
 
   function handleSystemState(state) {
@@ -56,6 +62,15 @@ function Drawer() {
     };
   }, [systemState]);
 
+  function getDrawerTab() {
+    if (selectedTab === cons.tabs.HOME) {
+      return <Home spaceId={spaceId} />;
+    } if (selectedTab === cons.tabs.DIRECTS) {
+      return <Directs />;
+    }
+    return <Members />;
+  }
+
   return (
     <div className="drawer">
       <DrawerHeader selectedTab={selectedTab} spaceId={spaceId} />
@@ -64,16 +79,12 @@ function Drawer() {
         <div className="rooms__wrapper">
           <ScrollView autoHide>
             <div className="rooms-container">
-              {
-                selectedTab !== cons.tabs.DIRECTS
-                  ? <Home spaceId={spaceId} />
-                  : <Directs />
-              }
+              { getDrawerTab() }
             </div>
           </ScrollView>
         </div>
       </div>
-      { systemState !== null && (
+      {systemState !== null && (
         <div className="drawer__state">
           <Text>{systemState.status}</Text>
         </div>

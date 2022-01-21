@@ -1,4 +1,4 @@
-# Contributing to Cinny
+# Contributing to RitualX
 
 First off, thanks for taking the time to contribute! ❤️
 

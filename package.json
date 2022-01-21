@@ -17,6 +17,7 @@
   "dependencies": {
     "@matrix-org/olm": "https://gitlab.matrix.org/api/v4/projects/27/packages/npm/@matrix-org/olm/-/@matrix-org/olm-3.2.8.tgz",
     "@tippyjs/react": "^4.2.5",
+    "axios": "^0.25.0",
     "babel-polyfill": "^6.26.0",
     "browser-encrypt-attachment": "^0.3.0",
     "dateformat": "^4.5.1",

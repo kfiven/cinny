@@ -1,16 +1,17 @@
 const cons = {
-  version: '1.6.1',
+  version: '0.1',
   secretKey: {
     ACCESS_TOKEN: 'cinny_access_token',
     DEVICE_ID: 'cinny_device_id',
     USER_ID: 'cinny_user_id',
     BASE_URL: 'cinny_hs_base_url',
   },
-  DEVICE_DISPLAY_NAME: 'Cinny Web',
+  DEVICE_DISPLAY_NAME: 'RitualX',
   'in.cinny.spaces': 'in.cinny.spaces',
   tabs: {
     HOME: 'home',
     DIRECTS: 'dm',
+    MEMBERS: 'members',
   },
   supportEventTypes: ['m.room.create', 'm.room.message', 'm.room.encrypted', 'm.room.member', 'm.sticker'],
   notifs: {

@@ -1,6 +1,6 @@
 import EventEmitter from 'events';
 import * as sdk from 'matrix-js-sdk';
-// import { logger } from 'matrix-js-sdk/lib/logger';
+//import { logger } from 'matrix-js-sdk/lib/logger';
 
 import { secret } from './state/auth';
 import RoomList from './state/RoomList';
@@ -10,7 +10,7 @@ import { initHotkeys } from './event/hotkeys';
 
 global.Olm = require('@matrix-org/olm');
 
-// logger.disableAll();
+//logger.disableAll();
 
 class InitMatrix extends EventEmitter {
   async init() {

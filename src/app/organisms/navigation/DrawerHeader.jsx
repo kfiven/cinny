@@ -6,14 +6,16 @@ import { twemojify } from '../../../util/twemojify';
 import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
 import {
-  openPublicRooms, openCreateRoom, openInviteUser,
+  openCreateRoom,
+  openInviteUser,
+  openPublicRooms,
 } from '../../../client/action/navigation';
 import { createSpaceShortcut, deleteSpaceShortcut } from '../../../client/action/room';
 
 import Text from '../../atoms/text/Text';
 import Header, { TitleWrapper } from '../../atoms/header/Header';
 import IconButton from '../../atoms/button/IconButton';
-import ContextMenu, { MenuItem, MenuHeader } from '../../atoms/context-menu/ContextMenu';
+import ContextMenu, { MenuHeader, MenuItem } from '../../atoms/context-menu/ContextMenu';
 
 import PlusIC from '../../../../public/res/ic/outlined/plus.svg';
 import HashPlusIC from '../../../../public/res/ic/outlined/hash-plus.svg';
@@ -21,13 +23,25 @@ import HashSearchIC from '../../../../public/res/ic/outlined/hash-search.svg';
 import PinIC from '../../../../public/res/ic/outlined/pin.svg';
 import PinFilledIC from '../../../../public/res/ic/filled/pin.svg';
 
-function DrawerHeader({ selectedTab, spaceId }) {
+function getTabName(selectedTab) {
+  const TabNames = {
+    [cons.tabs.DIRECTS]: 'Direct messages',
+    [cons.tabs.HOME]: 'Home',
+    [cons.tabs.MEMBERS]: 'Members',
+  };
+  return TabNames[selectedTab];
+}
+
+function DrawerHeader({
+  selectedTab,
+  spaceId,
+}) {
   const [, forceUpdate] = useState({});
   const mx = initMatrix.matrixClient;
-  const tabName = selectedTab !== cons.tabs.DIRECTS ? 'Home' : 'Direct messages';
-
+  const tabName = getTabName(selectedTab);
   const room = mx.getRoom(spaceId);
-  const spaceName = selectedTab === cons.tabs.DIRECTS ? null : (room?.name || null);
+  const spaceName = (selectedTab === cons.tabs.DIRECTS || selectedTab === cons.tabs.MEMBERS)
+    ? null : (room?.name || null);
 
   return (
     <Header>
@@ -41,14 +55,25 @@ function DrawerHeader({ selectedTab, spaceId }) {
           tooltip={initMatrix.roomList.spaceShortcut.has(spaceId) ? 'Unpin' : 'Pin to sidebar'}
           src={initMatrix.roomList.spaceShortcut.has(spaceId) ? PinFilledIC : PinIC}
           onClick={() => {
-            if (initMatrix.roomList.spaceShortcut.has(spaceId)) deleteSpaceShortcut(spaceId);
-            else createSpaceShortcut(spaceId);
+            if (initMatrix.roomList.spaceShortcut.has(spaceId)) {
+              deleteSpaceShortcut(spaceId);
+            } else {
+              createSpaceShortcut(spaceId);
+            }
             forceUpdate({});
           }}
         />
       )}
-      { selectedTab === cons.tabs.DIRECTS && <IconButton onClick={() => openInviteUser()} tooltip="Start DM" src={PlusIC} size="normal" /> }
-      { selectedTab !== cons.tabs.DIRECTS && !spaceName && (
+      {(selectedTab === cons.tabs.DIRECTS || selectedTab === cons.tabs.MEMBERS)
+        && (
+          <IconButton
+            onClick={() => openInviteUser()}
+            tooltip="Start DM"
+            src={PlusIC}
+            size="normal"
+          />
+        )}
+      {selectedTab === cons.tabs.HOME && !spaceName && (
         <>
           <ContextMenu
             content={(hideMenu) => (
@@ -56,19 +81,26 @@ function DrawerHeader({ selectedTab, spaceId }) {
                 <MenuHeader>Add room</MenuHeader>
                 <MenuItem
                   iconSrc={HashPlusIC}
-                  onClick={() => { hideMenu(); openCreateRoom(); }}
+                  onClick={() => {
+                    hideMenu();
+                    openCreateRoom();
+                  }}
                 >
                   Create new room
                 </MenuItem>
                 <MenuItem
                   iconSrc={HashSearchIC}
-                  onClick={() => { hideMenu(); openPublicRooms(); }}
+                  onClick={() => {
+                    hideMenu();
+                    openPublicRooms();
+                  }}
                 >
                   Add public room
                 </MenuItem>
               </>
             )}
-            render={(toggleMenu) => (<IconButton onClick={toggleMenu} tooltip="Add room" src={PlusIC} size="normal" />)}
+            render={(toggleMenu) => (
+              <IconButton onClick={toggleMenu} tooltip="Add room" src={PlusIC} size="normal" />)}
           />
         </>
       )}

@@ -1,6 +1,8 @@
 import EventEmitter from 'events';
 import appDispatcher from '../dispatcher';
 import cons from './cons';
+import room from '../../app/organisms/room/Room';
+import { logger } from 'matrix-js-sdk/lib/logger';
 
 class Navigation extends EventEmitter {
   constructor() {
@@ -55,7 +57,7 @@ class Navigation extends EventEmitter {
     const actions = {
       [cons.actions.navigation.SELECT_TAB]: () => {
         this.selectedTab = action.tabId;
-        if (this.selectedTab !== cons.tabs.DIRECTS) {
+        if (this.selectedTab !== cons.tabs.DIRECTS || this.selectedTab !== cons.tabs.MEMBERS) {
           if (this.selectedTab === cons.tabs.HOME) {
             this.selectedSpacePath = [cons.tabs.HOME];
             this.selectedSpaceId = null;

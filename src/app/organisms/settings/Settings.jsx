@@ -28,7 +28,7 @@ import InfoIC from '../../../../public/res/ic/outlined/info.svg';
 import PowerIC from '../../../../public/res/ic/outlined/power.svg';
 import CrossIC from '../../../../public/res/ic/outlined/cross.svg';
 
-import CinnySVG from '../../../../public/res/svg/cinny.svg';
+import RitualSVG from '../../../../public/res/svg/ritual.svg';
 
 function GeneralSection() {
   return (
@@ -147,17 +147,16 @@ function AboutSection() {
   return (
     <div className="settings-content settings__about">
       <div className="set-about__branding">
-        <img width="60" height="60" src={CinnySVG} alt="Cinny logo" />
+        <img width="60" height="60" src={RitualSVG} alt="Ritual logo" />
         <div>
           <Text variant="h2">
-            Cinny
+            RitualX
             <span className="text text-b3" style={{ margin: '0 var(--sp-extra-tight)' }}>{`v${cons.version}`}</span>
           </Text>
-          <Text>Yet another matrix client</Text>
+          <Text>The home for your relationship</Text>
 
           <div className="set-about__btns">
-            <Button onClick={() => window.open('https://github.com/ajbura/cinny')}>Source code</Button>
-            <Button onClick={() => window.open('https://cinny.in/#sponsor')}>Support</Button>
+            <Button onClick={() => window.open('https://ritual-app.com')}>Support</Button>
           </div>
         </div>
       </div>

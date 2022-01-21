@@ -42,7 +42,7 @@ async function login(baseUrl, username, email, password) {
 
 async function loginWithToken(baseUrl, token) {
   const client = createTemporaryClient(baseUrl);
-
+  console.log(baseUrl, token);
   const res = await client.login('m.login.token', {
     token,
     initial_device_display_name: cons.DEVICE_DISPLAY_NAME,

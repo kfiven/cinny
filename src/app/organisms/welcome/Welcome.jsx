@@ -3,15 +3,15 @@ import './Welcome.scss';
 
 import Text from '../../atoms/text/Text';
 
-import CinnySvg from '../../../../public/res/svg/cinny.svg';
+import RitualSvg from '../../../../public/res/svg/ritual.svg';
 
 function Welcome() {
   return (
     <div className="app-welcome flex--center">
       <div>
-        <img className="app-welcome__logo noselect" src={CinnySvg} alt="Cinny logo" />
-        <Text className="app-welcome__heading" variant="h1" weight="medium" primary>Welcome to Cinny</Text>
-        <Text className="app-welcome__subheading" variant="s1">Yet another matrix client</Text>
+        <img className="app-welcome__logo noselect" src={RitualSvg} alt="Ritual logo" />
+        <Text className="app-welcome__heading" variant="h1" weight="medium" primary>RitualX</Text>
+        <Text className="app-welcome__subheading" variant="s1">Your home to your relationship</Text>
       </div>
     </div>
   );
