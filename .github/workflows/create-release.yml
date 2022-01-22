@@ -15,15 +15,13 @@ jobs:
         with:
           node-version: '16'
           cache: 'npm'
-      - name: Publish
-        run: |
-          npm install
-          npm run build
+      - name: Build
+        run: npm ci && npm run build
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
           name: "cinny-${{ steps.get_tag.outputs.value }}.tar.gz"
-          path: "dist/cinny-${{ steps.get_tag.outputs.value }}.tar.gz"
+          path: dist
           retention-days: 1
 
   create-github-release:
@@ -40,13 +38,6 @@ jobs:
           script: |
             await github.request(`POST /repos/${{ github.repository }}/releases`, {
               tag_name: "${{ github.ref }}",
+              releases_upload: "cinny-${{ steps.get_tag.outputs.value }}.tar.gz",
               generate_release_notes: true
             });
-      - name: Upload tagged release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: "v${{ steps.get_tag.outputs.value }}"
-          files: |
-            dist/cinny-${{ steps.get_tag.outputs.value }}.tar.gz
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
