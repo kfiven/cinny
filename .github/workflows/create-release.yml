@@ -6,14 +6,12 @@ on:
 name: Create Release
 
 jobs:
-  create-github-release:
-    name: Create GitHub Release
+  build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Setup node
-        uses: actions/setup-node@v2
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
         with:
           node-version: '16'
           cache: 'npm'
@@ -24,9 +22,17 @@ jobs:
       - name: Upload Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: deploybuild
-          path: dist
+          name: "cinny-${{ steps.get_tag.outputs.value }}.tar.gz"
+          path: "dist/cinny-${{ steps.get_tag.outputs.value }}.tar.gz"
           retention-days: 1
+
+  create-github-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
       - name: Create Release Notes
         uses: actions/github-script@v4.0.2
         with:
@@ -36,3 +42,11 @@ jobs:
               tag_name: "${{ github.ref }}",
               generate_release_notes: true
             });
+      - name: Upload tagged release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: "v${{ steps.get_tag.outputs.value }}"
+          files: |
+            dist/cinny-${{ steps.get_tag.outputs.value }}.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
