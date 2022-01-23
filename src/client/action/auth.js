@@ -28,7 +28,7 @@ async function login(baseUrl, username, email, password) {
     identifier.medium = 'email';
     identifier.address = email;
   } else throw new Error('Bad Input');
-
+  
   const client = createTemporaryClient(baseUrl);
   const res = await client.login('m.login.password', {
     identifier,

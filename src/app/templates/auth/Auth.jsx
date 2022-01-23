@@ -23,6 +23,7 @@ import ContextMenu, { MenuItem, MenuHeader } from '../../atoms/context-menu/Cont
 import ChevronBottomIC from '../../../../public/res/ic/outlined/chevron-bottom.svg';
 import RitualSvg from '../../../../public/res/svg/ritual.svg';
 import SSOButtons from '../../molecules/sso-buttons/SSOButtons';
+import ritualClient from '../../../ritual-components/client/ritual-client';
 
 const LOCALPART_SIGNUP_REGEX = /^[a-z0-9_\-.=/]+$/;
 const BAD_LOCALPART_ERROR = 'Username can only contain characters a-z, 0-9, or \'=_-./\'';
@@ -39,20 +40,28 @@ function isValidInput(value, regex) {
   if (typeof regex === 'string') return regex === value;
   return regex.test(value);
 }
+
 function normalizeUsername(rawUsername) {
   const noLeadingAt = rawUsername.indexOf('@') === 0 ? rawUsername.substr(1) : rawUsername;
   return noLeadingAt.trim();
 }
 
 let searchingHs = null;
+
 function Homeserver({ onChange }) {
   const [hs, setHs] = useState(null);
   const [debounce] = useState(new Debounce());
-  const [process, setProcess] = useState({ isLoading: true, message: 'Loading homeserver list...' });
+  const [process, setProcess] = useState({
+    isLoading: true,
+    message: 'Loading homeserver list...',
+  });
   const hsRef = useRef();
 
   const setupHsConfig = async (servername) => {
-    setProcess({ isLoading: true, message: 'Looking for homeserver...' });
+    setProcess({
+      isLoading: true,
+      message: 'Looking for homeserver...',
+    });
     let baseUrl = null;
     try {
       baseUrl = await getBaseUrl(servername);
@@ -60,7 +69,10 @@ function Homeserver({ onChange }) {
       baseUrl = e.message;
     }
     if (searchingHs !== servername) return;
-    setProcess({ isLoading: true, message: `Connecting to ${baseUrl}...` });
+    setProcess({
+      isLoading: true,
+      message: `Connecting to ${baseUrl}...`,
+    });
     const tempClient = auth.createTemporaryClient(baseUrl);
 
     Promise.allSettled([tempClient.loginFlows(), tempClient.register()])
@@ -70,12 +82,20 @@ function Homeserver({ onChange }) {
         if (loginFlow === undefined || registerFlow === undefined) throw new Error();
 
         if (searchingHs !== servername) return;
-        onChange({ baseUrl, login: loginFlow, register: registerFlow });
+        onChange({
+          baseUrl,
+          login: loginFlow,
+          register: registerFlow,
+        });
         setProcess({ isLoading: false });
-      }).catch(() => {
+      })
+      .catch(() => {
         if (searchingHs !== servername) return;
         onChange(null);
-        setProcess({ isLoading: false, error: 'Unable to connect. Please check your input.' });
+        setProcess({
+          isLoading: false,
+          error: 'Unable to connect. Please check your input.',
+        });
       });
   };
 
@@ -96,9 +116,15 @@ function Homeserver({ onChange }) {
       if (!hsList?.length > 0 || selectedHs < 0 || selectedHs >= hsList?.length) {
         throw new Error();
       }
-      setHs({ selected: hsList[selectedHs], list: hsList });
+      setHs({
+        selected: hsList[selectedHs],
+        list: hsList,
+      });
     } catch {
-      setHs({ selected: 'matrix.ritual-app.com', list: ['matrix.ritual-app.com'] });
+      setHs({
+        selected: 'matrix.ritual-app.com',
+        list: ['matrix.ritual-app.com'],
+      });
     }
   }, []);
 
@@ -106,14 +132,23 @@ function Homeserver({ onChange }) {
     const { value } = e.target;
     setProcess({ isLoading: false });
     debounce._(async () => {
-      setHs({ selected: value, list: hs.list });
+      setHs({
+        selected: value,
+        list: hs.list,
+      });
     }, 700)();
   };
 
   return (
     <>
       <div className="homeserver-form">
-        <Input name="homeserver" onChange={handleHsInput} value={hs?.selected} forwardRef={hsRef} label="Homeserver" />
+        <Input
+          name="homeserver"
+          onChange={handleHsInput}
+          value={hs?.selected}
+          forwardRef={hsRef}
+          label="Homeserver"
+        />
         <ContextMenu
           placement="right"
           content={(hideMenu) => (
@@ -126,7 +161,10 @@ function Homeserver({ onChange }) {
                     onClick={() => {
                       hideMenu();
                       hsRef.current.value = hsName;
-                      setHs({ selected: hsName, list: hs.list });
+                      setHs({
+                        selected: hsName,
+                        list: hs.list,
+                      });
                     }}
                   >
                     {hsName}
@@ -138,7 +176,8 @@ function Homeserver({ onChange }) {
           render={(toggleMenu) => <IconButton onClick={toggleMenu} src={ChevronBottomIC} />}
         />
       </div>
-      {process.error !== undefined && <Text className="homeserver-form__error" variant="b3">{process.error}</Text>}
+      {process.error !== undefined
+        && <Text className="homeserver-form__error" variant="b3">{process.error}</Text>}
       {process.isLoading && (
         <div className="homeserver-form__status flex--center">
           <Spinner size="small" />
@@ -148,18 +187,25 @@ function Homeserver({ onChange }) {
     </>
   );
 }
+
 Homeserver.propTypes = {
   onChange: PropTypes.func.isRequired,
 };
 
-function Login({ loginFlow, baseUrl }) {
+function Login({
+  loginFlow,
+  baseUrl,
+}) {
   const [typeIndex, setTypeIndex] = useState(0);
   const loginTypes = ['Username', 'Email'];
   const isPassword = loginFlow?.filter((flow) => flow.type === 'm.login.password')[0];
   const ssoProviders = loginFlow?.filter((flow) => flow.type === 'm.login.sso')[0];
 
   const initialValues = {
-    username: '', password: '', email: '', other: '',
+    username: '',
+    password: '',
+    email: '',
+    other: '',
   };
 
   const validator = (values) => {
@@ -177,18 +223,20 @@ function Login({ loginFlow, baseUrl }) {
     typeIndex === 0 ? normalizeUsername(values.username) : undefined,
     typeIndex === 1 ? values.email : undefined,
     values.password,
-  ).then(() => {
-    actions.setSubmitting(true);
-    window.location.reload();
-  }).catch((error) => {
-    let msg = error.message;
-    if (msg === 'Unknown message') msg = 'Please check your credentials';
-    actions.setErrors({
-      password: msg === 'Invalid password' ? msg : undefined,
-      other: msg !== 'Invalid password' ? msg : undefined,
+  )
+    .then(() => {
+      actions.setSubmitting(true);
+      window.location.reload();
+    })
+    .catch((error) => {
+      let msg = error.message;
+      if (msg === 'Unknown message') msg = 'Please check your credentials';
+      actions.setErrors({
+        password: msg === 'Invalid password' ? msg : undefined,
+        other: msg !== 'Invalid password' ? msg : undefined,
+      });
+      actions.setSubmitting(false);
     });
-    actions.setSubmitting(false);
-  });
 
   return (
     <>
@@ -225,18 +273,52 @@ function Login({ loginFlow, baseUrl }) {
           validate={validator}
         >
           {({
-            values, errors, handleChange, handleSubmit, isSubmitting,
+            values,
+            errors,
+            handleChange,
+            handleSubmit,
+            isSubmitting,
           }) => (
             <>
               {isSubmitting && <LoadingScreen message="Login in progress..." />}
               <form className="auth-form" onSubmit={handleSubmit}>
-                {typeIndex === 0 && <Input values={values.username} name="username" onChange={handleChange} label="Username" type="username" required />}
-                {errors.username && <Text className="auth-form__error" variant="b3">{errors.username}</Text>}
-                {typeIndex === 1 && <Input values={values.email} name="email" onChange={handleChange} label="Email" type="email" required />}
-                {errors.email && <Text className="auth-form__error" variant="b3">{errors.email}</Text>}
-                <Input values={values.password} name="password" onChange={handleChange} label="Password" type="password" required />
-                {errors.password && <Text className="auth-form__error" variant="b3">{errors.password}</Text>}
-                {errors.other && <Text className="auth-form__error" variant="b3">{errors.other}</Text>}
+                {typeIndex === 0 && (
+                  <Input
+                    values={values.username}
+                    name="username"
+                    onChange={handleChange}
+                    label="Username"
+                    type="username"
+                    required
+                  />
+                )}
+                {errors.username
+                  && <Text className="auth-form__error" variant="b3">{errors.username}</Text>}
+                {typeIndex === 1
+                  && (
+                  <Input
+                    values={values.email}
+                    name="email"
+                    onChange={handleChange}
+                    label="Email"
+                    type="email"
+                    required
+                  />
+                  )}
+                {errors.email
+                  && <Text className="auth-form__error" variant="b3">{errors.email}</Text>}
+                <Input
+                  values={values.password}
+                  name="password"
+                  onChange={handleChange}
+                  label="Password"
+                  type="password"
+                  required
+                />
+                {errors.password
+                  && <Text className="auth-form__error" variant="b3">{errors.password}</Text>}
+                {errors.other
+                  && <Text className="auth-form__error" variant="b3">{errors.other}</Text>}
                 <div className="auth-form__btns">
                   <Button variant="primary" type="submit" disabled={isSubmitting}>Login</Button>
                 </div>
@@ -256,6 +338,7 @@ function Login({ loginFlow, baseUrl }) {
     </>
   );
 }
+
 Login.propTypes = {
   loginFlow: PropTypes.arrayOf(
     PropTypes.shape({}),
@@ -265,13 +348,22 @@ Login.propTypes = {
 
 let sid;
 let clientSecret;
-function Register({ registerInfo, loginFlow, baseUrl }) {
+
+function Register({
+  registerInfo,
+  loginFlow,
+  baseUrl,
+}) {
   const [process, setProcess] = useState({});
   const formRef = useRef();
 
   const ssoProviders = loginFlow?.filter((flow) => flow.type === 'm.login.sso')[0];
   const isDisabled = registerInfo.errcode !== undefined;
-  const { flows, params, session } = registerInfo;
+  const {
+    flows,
+    params,
+    session,
+  } = registerInfo;
 
   let isEmail = false;
   let isEmailRequired = true;
@@ -288,7 +380,11 @@ function Register({ registerInfo, loginFlow, baseUrl }) {
   });
 
   const initialValues = {
-    username: '', password: '', confirmPassword: '', email: '', other: '',
+    username: '',
+    password: '',
+    confirmPassword: '',
+    email: '',
+    other: '',
   };
 
   const validator = (values) => {
@@ -321,16 +417,23 @@ function Register({ registerInfo, loginFlow, baseUrl }) {
         if (isEmail && values.email.length > 0) {
           const result = await auth.verifyEmail(baseUrl, values.email, clientSecret, 1);
           if (result.errcode) {
-            if (result.errcode === 'M_THREEPID_IN_USE') actions.setErrors({ email: result.error });
-            else actions.setErrors({ others: result.error || result.message });
+            if (result.errcode === 'M_THREEPID_IN_USE') {
+              actions.setErrors({ email: result.error });
+            } else {
+              actions.setErrors({ others: result.error || result.message });
+            }
             actions.setSubmitting(false);
             return;
           }
           sid = result.sid;
         }
-        setProcess({ type: 'processing', message: 'Registration in progress....' });
+        setProcess({
+          type: 'processing',
+          message: 'Registration in progress....',
+        });
         actions.setSubmitting(false);
-      }).catch((err) => {
+      })
+      .catch((err) => {
         const msg = err.message || err.error;
         if (['M_USER_IN_USE', 'M_INVALID_USERNAME', 'M_EXCLUSIVE'].indexOf(err.errcode) > -1) {
           actions.setErrors({ username: err.errcode === 'M_USER_IN_USE' ? 'Username is already taken' : msg });
@@ -355,17 +458,26 @@ function Register({ registerInfo, loginFlow, baseUrl }) {
 
       if (isRecaptcha && !d.completed.includes('m.login.recaptcha')) {
         const sitekey = params['m.login.recaptcha'].public_key;
-        setProcess({ type: 'm.login.recaptcha', sitekey });
+        setProcess({
+          type: 'm.login.recaptcha',
+          sitekey,
+        });
         return;
       }
       if (isTerms && !d.completed.includes('m.login.terms')) {
         const pp = params['m.login.terms'].policies.privacy_policy;
         const url = pp?.en.url || pp[Object.keys(pp)[0]].url;
-        setProcess({ type: 'm.login.terms', url });
+        setProcess({
+          type: 'm.login.terms',
+          url,
+        });
         return;
       }
       if (isEmail && email.length > 0) {
-        setProcess({ type: 'm.login.email.identity', email });
+        setProcess({
+          type: 'm.login.email.identity',
+          email,
+        });
         return;
       }
       if (isDummy) {
@@ -387,8 +499,14 @@ function Register({ registerInfo, loginFlow, baseUrl }) {
       response: value,
       session,
     });
-    if (d.done) refreshWindow();
-    else setProcess({ type: 'processing', message: 'Registration in progress...' });
+    if (d.done) {
+      refreshWindow();
+    } else {
+      setProcess({
+        type: 'processing',
+        message: 'Registration in progress...',
+      });
+    }
   };
   const handleTerms = async () => {
     const [username, password] = getInputs();
@@ -396,27 +514,53 @@ function Register({ registerInfo, loginFlow, baseUrl }) {
       type: 'm.login.terms',
       session,
     });
-    if (d.done) refreshWindow();
-    else setProcess({ type: 'processing', message: 'Registration in progress...' });
+    if (d.done) {
+      refreshWindow();
+    } else {
+      setProcess({
+        type: 'processing',
+        message: 'Registration in progress...',
+      });
+    }
   };
   const handleEmailVerify = async () => {
     const [username, password] = getInputs();
     const d = await auth.completeRegisterStage(baseUrl, username, password, {
       type: 'm.login.email.identity',
-      threepidCreds: { sid, client_secret: clientSecret },
-      threepid_creds: { sid, client_secret: clientSecret },
+      threepidCreds: {
+        sid,
+        client_secret: clientSecret,
+      },
+      threepid_creds: {
+        sid,
+        client_secret: clientSecret,
+      },
       session,
     });
-    if (d.done) refreshWindow();
-    else setProcess({ type: 'processing', message: 'Registration in progress...' });
+    if (d.done) {
+      refreshWindow();
+    } else {
+      setProcess({
+        type: 'processing',
+        message: 'Registration in progress...',
+      });
+    }
   };
 
   return (
     <>
       {process.type === 'processing' && <LoadingScreen message={process.message} />}
-      {process.type === 'm.login.recaptcha' && <Recaptcha message="Please check the box below to proceed." sitekey={process.sitekey} onChange={handleRecaptcha} />}
+      {process.type === 'm.login.recaptcha'
+        && (
+        <Recaptcha
+          message="Please check the box below to proceed."
+          sitekey={process.sitekey}
+          onChange={handleRecaptcha}
+        />
+        )}
       {process.type === 'm.login.terms' && <Terms url={process.url} onSubmit={handleTerms} />}
-      {process.type === 'm.login.email.identity' && <EmailVerify email={process.email} onContinue={handleEmailVerify} />}
+      {process.type === 'm.login.email.identity'
+        && <EmailVerify email={process.email} onContinue={handleEmailVerify} />}
       <div className="auth-form__heading">
         {!isDisabled && <Text variant="h2" weight="medium">Register</Text>}
         {isDisabled && <Text className="auth-form__error">{registerInfo.error}</Text>}
@@ -428,20 +572,60 @@ function Register({ registerInfo, loginFlow, baseUrl }) {
           validate={validator}
         >
           {({
-            values, errors, handleChange, handleSubmit, isSubmitting,
+            values,
+            errors,
+            handleChange,
+            handleSubmit,
+            isSubmitting,
           }) => (
             <>
-              {process.type === undefined && isSubmitting && <LoadingScreen message="Registration in progress..." />}
+              {process.type === undefined && isSubmitting
+                && <LoadingScreen message="Registration in progress..." />}
               <form className="auth-form" ref={formRef} onSubmit={handleSubmit}>
-                <Input values={values.username} name="username" onChange={handleChange} label="Username" type="username" required />
-                {errors.username && <Text className="auth-form__error" variant="b3">{errors.username}</Text>}
-                <Input values={values.password} name="password" onChange={handleChange} label="Password" type="password" required />
-                {errors.password && <Text className="auth-form__error" variant="b3">{errors.password}</Text>}
-                <Input values={values.confirmPassword} name="confirmPassword" onChange={handleChange} label="Confirm password" type="password" required />
-                {errors.confirmPassword && <Text className="auth-form__error" variant="b3">{errors.confirmPassword}</Text>}
-                {isEmail && <Input values={values.email} name="email" onChange={handleChange} label={`Email${isEmailRequired ? '' : ' (optional)'}`} type="email" required={isEmailRequired} />}
-                {errors.email && <Text className="auth-form__error" variant="b3">{errors.email}</Text>}
-                {errors.other && <Text className="auth-form__error" variant="b3">{errors.other}</Text>}
+                <Input
+                  values={values.username}
+                  name="username"
+                  onChange={handleChange}
+                  label="Username"
+                  type="username"
+                  required
+                />
+                {errors.username
+                  && <Text className="auth-form__error" variant="b3">{errors.username}</Text>}
+                <Input
+                  values={values.password}
+                  name="password"
+                  onChange={handleChange}
+                  label="Password"
+                  type="password"
+                  required
+                />
+                {errors.password
+                  && <Text className="auth-form__error" variant="b3">{errors.password}</Text>}
+                <Input
+                  values={values.confirmPassword}
+                  name="confirmPassword"
+                  onChange={handleChange}
+                  label="Confirm password"
+                  type="password"
+                  required
+                />
+                {errors.confirmPassword
+                  && <Text className="auth-form__error" variant="b3">{errors.confirmPassword}</Text>}
+                {isEmail && (
+                <Input
+                  values={values.email}
+                  name="email"
+                  onChange={handleChange}
+                  label={`Email${isEmailRequired ? '' : ' (optional)'}`}
+                  type="email"
+                  required={isEmailRequired}
+                />
+                )}
+                {errors.email
+                  && <Text className="auth-form__error" variant="b3">{errors.email}</Text>}
+                {errors.other
+                  && <Text className="auth-form__error" variant="b3">{errors.other}</Text>}
                 <div className="auth-form__btns">
                   <Button variant="primary" type="submit" disabled={isSubmitting}>Register</Button>
                 </div>
@@ -460,6 +644,7 @@ function Register({ registerInfo, loginFlow, baseUrl }) {
     </>
   );
 }
+
 Register.propTypes = {
   registerInfo: PropTypes.shape({}).isRequired,
   loginFlow: PropTypes.arrayOf(
@@ -480,7 +665,7 @@ function AuthCard() {
   return (
     <>
       <Homeserver onChange={handleHsChange} />
-      { hsConfig !== null && (
+      {hsConfig !== null && (
         type === 'login'
           ? <Login loginFlow={hsConfig.login.flows} baseUrl={hsConfig.baseUrl} />
           : (
@@ -491,15 +676,19 @@ function AuthCard() {
             />
           )
       )}
-      { hsConfig !== null && (
+      {hsConfig !== null && (
         <Text variant="b2" className="auth-card__switch flex--center">
           {`${(type === 'login' ? 'Don\'t have' : 'Already have')} an account?`}
           <button
             type="button"
-            style={{ color: 'var(--tc-link)', cursor: 'pointer', margin: '0 var(--sp-ultra-tight)' }}
+            style={{
+              color: 'var(--tc-link)',
+              cursor: 'pointer',
+              margin: '0 var(--sp-ultra-tight)',
+            }}
             onClick={() => setType((type === 'login') ? 'register' : 'login')}
           >
-            { type === 'login' ? ' Register' : ' Login' }
+            {type === 'login' ? ' Register' : ' Login'}
           </button>
         </Text>
       )}
@@ -508,15 +697,40 @@ function AuthCard() {
 }
 
 function Auth() {
+  const [ritualToken, setRitualToken] = useState(getUrlPrams('ritualToken'));
+  const [expertId, setExpertId] = useState(getUrlPrams('expertId'));
+  const [matrixUserDetails, setMatrixUserDetails] = useState(null);
   const [loginToken, setLoginToken] = useState(getUrlPrams('loginToken'));
+
   useEffect(async () => {
-    if (!loginToken) return;
+    if (ritualToken || expertId) {
+      const getMatrixUserDetails = async () => {
+        const { data } = await ritualClient.get(`/v1/experts/${expertId}/`, {
+          params: {},
+        });
+        const { matrix_user: matrixUser, matrix_pass: matrixPass, email } = data;
+        console.log(matrixUser, matrixPass, email);
+        setMatrixUserDetails({ matrixUser, matrixPass });
+      };
+      getMatrixUserDetails();
+    }
     localStorage.setItem(cons.secretKey.BASE_URL, 'https://matrix.ritual-app.com');
+    localStorage.setItem('ritual_expert_uuid', expertId); // TODO: need to move the define to common location
+    const baseUrl = localStorage.getItem(cons.secretKey.BASE_URL);
+    try {
+      console.log('reached here!');
+      const rest = await auth.login(baseUrl, matrixUserDetails.matrixUser, matrixUserDetails.email, matrixUserDetails.matrixPass);
+      console.log(`rest ${rest}`);
+      const { href } = window.location;
+      window.location.replace(href.slice(0, href.indexOf('?')));
+    } catch {
+      setLoginToken(null);
+    }
+    if (!loginToken) return;
     if (localStorage.getItem(cons.secretKey.BASE_URL) === undefined) {
       setLoginToken(null);
       return;
     }
-    const baseUrl = localStorage.getItem(cons.secretKey.BASE_URL);
     try {
       await auth.loginWithToken(baseUrl, loginToken);
       const { href } = window.location;
@@ -530,8 +744,8 @@ function Auth() {
     <ScrollView invisible>
       <div className="auth__base">
         <div className="auth__wrapper">
-          {loginToken && <LoadingScreen message="Redirecting..." />}
-          {!loginToken && (
+          {(loginToken || expertId) && <LoadingScreen message="Redirecting..." />}
+          {(!loginToken && !expertId) && (
             <div className="auth-card">
               <Header>
                 <Avatar size="extra-small" imageSrc={RitualSvg} />
@@ -566,11 +780,16 @@ function LoadingScreen({ message }) {
     </ProcessWrapper>
   );
 }
+
 LoadingScreen.propTypes = {
   message: PropTypes.string.isRequired,
 };
 
-function Recaptcha({ message, sitekey, onChange }) {
+function Recaptcha({
+  message,
+  sitekey,
+  onChange,
+}) {
   return (
     <ProcessWrapper>
       <div style={{ marginBottom: 'var(--sp-normal)' }}>
@@ -580,25 +799,48 @@ function Recaptcha({ message, sitekey, onChange }) {
     </ProcessWrapper>
   );
 }
+
 Recaptcha.propTypes = {
   message: PropTypes.string.isRequired,
   sitekey: PropTypes.string.isRequired,
   onChange: PropTypes.func.isRequired,
 };
 
-function Terms({ url, onSubmit }) {
+function Terms({
+  url,
+  onSubmit,
+}) {
   return (
     <ProcessWrapper>
-      <form onSubmit={(e) => { e.preventDefault(); onSubmit(); }}>
-        <div style={{ margin: 'var(--sp-normal)', maxWidth: '450px' }}>
+      <form onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit();
+      }}
+      >
+        <div style={{
+          margin: 'var(--sp-normal)',
+          maxWidth: '450px',
+        }}
+        >
           <Text variant="h2" weight="medium">Agree with terms</Text>
           <div style={{ marginBottom: 'var(--sp-normal)' }} />
-          <Text variant="b1">In order to complete registration, you need to agree to the terms and conditions.</Text>
-          <div style={{ display: 'flex', alignItems: 'center', margin: 'var(--sp-normal) 0' }}>
+          <Text variant="b1">
+            In order to complete registration, you need to agree to the terms and
+            conditions.
+          </Text>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            margin: 'var(--sp-normal) 0',
+          }}
+          >
             <input style={{ marginRight: '8px' }} id="termsCheckbox" type="checkbox" required />
             <Text variant="b1">
               {'I accept '}
-              <a style={{ cursor: 'pointer' }} href={url} rel="noreferrer" target="_blank">Terms and Conditions</a>
+              <a style={{ cursor: 'pointer' }} href={url} rel="noreferrer" target="_blank">
+                Terms and
+                Conditions
+              </a>
             </Text>
           </div>
           <Button id="termsBtn" type="submit" variant="primary">Submit</Button>
@@ -607,15 +849,23 @@ function Terms({ url, onSubmit }) {
     </ProcessWrapper>
   );
 }
+
 Terms.propTypes = {
   url: PropTypes.string.isRequired,
   onSubmit: PropTypes.func.isRequired,
 };
 
-function EmailVerify({ email, onContinue }) {
+function EmailVerify({
+  email,
+  onContinue,
+}) {
   return (
     <ProcessWrapper>
-      <div style={{ margin: 'var(--sp-normal)', maxWidth: '450px' }}>
+      <div style={{
+        margin: 'var(--sp-normal)',
+        maxWidth: '450px',
+      }}
+      >
         <Text variant="h2" weight="medium">Verify email</Text>
         <div style={{ margin: 'var(--sp-normal) 0' }}>
           <Text variant="b1">
@@ -629,6 +879,7 @@ function EmailVerify({ email, onContinue }) {
     </ProcessWrapper>
   );
 }
+
 EmailVerify.propTypes = {
   email: PropTypes.string.isRequired,
 };
@@ -640,6 +891,7 @@ function ProcessWrapper({ children }) {
     </div>
   );
 }
+
 ProcessWrapper.propTypes = {
   children: PropTypes.node.isRequired,
 };

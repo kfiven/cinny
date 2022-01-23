@@ -19,7 +19,7 @@ function Members() {
   } = initMatrix;
 
   const directIds = [...roomList.directs].sort(AtoZ);
-  const expertId = "e40d9a38-85ad-4881-ab45-8d1c63a8c28d";
+  const expertId = localStorage.getItem('ritual_expert_uuid'); //"e40d9a38-85ad-4881-ab45-8d1c63a8c28d";
   const [, forceUpdate] = useState({});
 
   function selectorChanged(selectedRoomId, prevSelectedRoomId) {

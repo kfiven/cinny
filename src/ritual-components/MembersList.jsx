@@ -12,13 +12,13 @@ const MembersList = ({
 
   useEffect(() => {
     console.log(`Expert : ${expertId}`);
-    const members = async () => {
+    const getMembers = async () => {
       const { data } = await ritualClient.get(`/v1/experts/${expertId}/members/`, {
         params: {},
       });
       setMembers(data);
     };
-    members();
+    getMembers();
   });
 
   const renderedResults = () => {
