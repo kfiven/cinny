@@ -8,12 +8,12 @@ import Postie from '../../../util/Postie';
 
 import Selector from './Selector';
 
-import { AtoZ } from './common';
+import { Sort } from './common';
 
 const drawerPostie = new Postie();
 function Directs() {
   const { roomList, notifications } = initMatrix;
-  const directIds = [...roomList.directs].sort(AtoZ);
+  const directIds = [...roomList.directs].sort(Sort);
 
   const [, forceUpdate] = useState({});
 

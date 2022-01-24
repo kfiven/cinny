@@ -1,6 +1,6 @@
 import initMatrix from '../../../client/initMatrix';
 
-function AtoZ(aId, bId) {
+export function AtoZ(aId, bId) {
   let aName = initMatrix.matrixClient.getRoom(aId).name;
   let bName = initMatrix.matrixClient.getRoom(bId).name;
 
@@ -18,4 +18,11 @@ function AtoZ(aId, bId) {
   return 0;
 }
 
-export { AtoZ };
+export function Activity(aId, bId) {
+  const aTimestamp = initMatrix.matrixClient.getRoom(aId).getLastActiveTimestamp();
+  const bTimestamp = initMatrix.matrixClient.getRoom(bId).getLastActiveTimestamp();
+
+  return bTimestamp - aTimestamp;
+}
+
+export const Sort = Activity;

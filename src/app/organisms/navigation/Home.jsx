@@ -10,7 +10,7 @@ import Postie from '../../../util/Postie';
 import Text from '../../atoms/text/Text';
 import Selector from './Selector';
 
-import { AtoZ } from './common';
+import { Sort } from './common';
 
 const drawerPostie = new Postie();
 function Home({ spaceId }) {
@@ -22,14 +22,14 @@ function Home({ spaceId }) {
 
   const spaceChildIds = roomList.getSpaceChildren(spaceId);
   if (spaceChildIds) {
-    spaceIds = spaceChildIds.filter((roomId) => roomList.spaces.has(roomId)).sort(AtoZ);
-    roomIds = spaceChildIds.filter((roomId) => roomList.rooms.has(roomId)).sort(AtoZ);
-    directIds = spaceChildIds.filter((roomId) => roomList.directs.has(roomId)).sort(AtoZ);
+    spaceIds = spaceChildIds.filter((roomId) => roomList.spaces.has(roomId)).sort(Sort);
+    roomIds = spaceChildIds.filter((roomId) => roomList.rooms.has(roomId)).sort(Sort);
+    directIds = spaceChildIds.filter((roomId) => roomList.directs.has(roomId)).sort(Sort);
   } else {
     spaceIds = [...roomList.spaces]
-      .filter((roomId) => !roomList.roomIdToParents.has(roomId)).sort(AtoZ);
+      .filter((roomId) => !roomList.roomIdToParents.has(roomId)).sort(Sort);
     roomIds = [...roomList.rooms]
-      .filter((roomId) => !roomList.roomIdToParents.has(roomId)).sort(AtoZ);
+      .filter((roomId) => !roomList.roomIdToParents.has(roomId)).sort(Sort);
   }
 
   function selectorChanged(selectedRoomId, prevSelectedRoomId) {
