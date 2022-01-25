@@ -20,6 +20,9 @@ class Settings extends EventEmitter {
   constructor() {
     super();
 
+    this.roomsSort = ['az', 'activity'];
+    this.roomsSortIndex = this.getRoomsSortIndex();
+
     this.themes = ['', 'silver-theme', 'dark-theme', 'butter-theme'];
     this.themeIndex = this.getThemeIndex();
 
@@ -30,6 +33,20 @@ class Settings extends EventEmitter {
     this.hideNickAvatarEvents = this.getHideNickAvatarEvents();
 
     this.isTouchScreenDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0);
+  }
+
+  getRoomsSortIndex() {
+    if (typeof this.roomsSortIndex === 'number') return this.roomsSortIndex;
+
+    const settings = getSettings();
+    if (settings === null) return 0;
+    if (typeof settings.roomsSortIndex === 'undefined') return 0;
+    // eslint-disable-next-line radix
+    return parseInt(settings.roomsSortIndex);
+  }
+
+  getRoomsSortName() {
+    return this.roomsSort[this.roomsSortIndex];
   }
 
   getThemeIndex() {
