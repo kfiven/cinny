@@ -1,5 +1,7 @@
 /* eslint-disable react/prop-types */
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, {
+  useState, useEffect, useCallback, useRef,
+} from 'react';
 import PropTypes from 'prop-types';
 import './Message.scss';
 
@@ -30,6 +32,7 @@ import EmojiAddIC from '../../../../public/res/ic/outlined/emoji-add.svg';
 import VerticalMenuIC from '../../../../public/res/ic/outlined/vertical-menu.svg';
 import PencilIC from '../../../../public/res/ic/outlined/pencil.svg';
 import TickMarkIC from '../../../../public/res/ic/outlined/tick-mark.svg';
+import PinIC from '../../../../public/res/ic/outlined/pin.svg';
 import BinIC from '../../../../public/res/ic/outlined/bin.svg';
 
 function PlaceholderMessage() {
@@ -439,6 +442,24 @@ const MessageOptions = React.memo(({
   const myPowerlevel = room.getMember(mx.getUserId())?.powerLevel;
   const canIRedact = room.currentState.hasSufficientPowerLevelFor('redact', myPowerlevel);
 
+  const togglePinned = () => {
+    const pinned = room.currentState.getStateEvents('m.room.pinned_events', '')?.getContent().pinned || [];
+    if (pinned.includes(eventId)) {
+      pinned.splice(pinned.indexOf(eventId), 1);
+    } else {
+      pinned.push(eventId);
+    }
+
+    mx.sendStateEvent(roomId, 'm.room.pinned_events', { pinned });
+  };
+
+  const isPinned = () => {
+    const pinnedEvent = room.currentState.getStateEvents('m.room.pinned_events', '');
+    if (!pinnedEvent) return false;
+    const { pinned } = pinnedEvent.getContent();
+    return pinned && pinned.includes(eventId);
+  };
+
   return (
     <div className="message__options">
       <IconButton
@@ -470,6 +491,12 @@ const MessageOptions = React.memo(({
               onClick={() => openReadReceipts(roomId, roomTimeline.getEventReaders(mEvent))}
             >
               Read receipts
+            </MenuItem>
+            <MenuItem
+              iconSrc={PinIC}
+              onClick={togglePinned}
+            >
+              {isPinned() ? 'Unpin message' : 'Pin message'}
             </MenuItem>
             {(canIRedact || senderId === mx.getUserId()) && (
               <>

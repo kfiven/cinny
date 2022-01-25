@@ -79,6 +79,14 @@ export function openEmojiBoard(cords, requestEmojiCallback) {
   });
 }
 
+export function openPinnedMessages(cords, roomId) {
+  appDispatcher.dispatch({
+    type: cons.actions.navigation.OPEN_PINNEDMESSAGES,
+    cords,
+    roomId,
+  });
+}
+
 export function openReadReceipts(roomId, userIds) {
   appDispatcher.dispatch({
     type: cons.actions.navigation.OPEN_READRECEIPTS,

@@ -121,6 +121,12 @@ class Navigation extends EventEmitter {
           action.cords, action.requestEmojiCallback,
         );
       },
+      [cons.actions.navigation.OPEN_PINNEDMESSAGES]: () => {
+        this.emit(
+          cons.events.navigation.PINNEDMESSAGES_OPENED,
+          action.cords, action.roomId,
+        );
+      },
       [cons.actions.navigation.OPEN_READRECEIPTS]: () => {
         this.emit(
           cons.events.navigation.READRECEIPTS_OPENED,
