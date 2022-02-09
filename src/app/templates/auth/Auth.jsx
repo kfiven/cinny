@@ -98,7 +98,10 @@ function Homeserver({ onChange }) {
       }
       setHs({ selected: hsList[selectedHs], list: hsList });
     } catch {
-      setHs({ selected: 'matrix.org', list: ['matrix.org'] });
+        const queryParams = new URLSearchParams(window.location.search);
+        const hsLink = queryParams.get('hs');
+        if(hsLink)
+            setHs({ selected: hsLink, list: [hsLink] });
     }
   }, []);
 
