@@ -1,4 +1,6 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, {
+  useState, useEffect, useCallback,
+} from 'react';
 import PropTypes from 'prop-types';
 import './RoomMembers.scss';
 
@@ -138,7 +140,11 @@ function RoomMembers({ roomId }) {
   return (
     <div className="room-members">
       <MenuHeader>Search member</MenuHeader>
-      <Input onChange={handleSearch} placeholder="Search for name" />
+      <Input
+        onChange={handleSearch}
+        placeholder="Search for name"
+        autoFocus
+      />
       <div className="room-members__header">
         <MenuHeader>{`${searchMembers ? `Found — ${mList.length}` : members.length} members`}</MenuHeader>
         <SegmentedControls

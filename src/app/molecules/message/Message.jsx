@@ -1,5 +1,7 @@
 /* eslint-disable react/prop-types */
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, {
+  useState, useEffect, useCallback, useRef,
+} from 'react';
 import PropTypes from 'prop-types';
 import './Message.scss';
 
@@ -114,22 +116,31 @@ const MessageReplyWrapper = React.memo(({ roomTimeline, eventId }) => {
     const mx = initMatrix.matrixClient;
     const timelineSet = roomTimeline.getUnfilteredTimelineSet();
     const loadReply = async () => {
-      const eTimeline = await mx.getEventTimeline(timelineSet, eventId);
-      await roomTimeline.decryptAllEventsOfTimeline(eTimeline);
+      try {
+        const eTimeline = await mx.getEventTimeline(timelineSet, eventId);
+        await roomTimeline.decryptAllEventsOfTimeline(eTimeline);
 
-      const mEvent = eTimeline.getTimelineSet().findEventById(eventId);
+        const mEvent = eTimeline.getTimelineSet().findEventById(eventId);
 
-      const rawBody = mEvent.getContent().body;
-      const username = getUsernameOfRoomMember(mEvent.sender);
+        const rawBody = mEvent.getContent().body;
+        const username = getUsernameOfRoomMember(mEvent.sender);
 
-      if (isMountedRef.current === false) return;
-      const fallbackBody = mEvent.isRedacted() ? '*** This message has been deleted ***' : '*** Unable to load reply content ***';
-      setReply({
-        to: username,
-        color: colorMXID(mEvent.getSender()),
-        body: parseReply(rawBody)?.body ?? rawBody ?? fallbackBody,
-        event: mEvent,
-      });
+        if (isMountedRef.current === false) return;
+        const fallbackBody = mEvent.isRedacted() ? '*** This message has been deleted ***' : '*** Unable to load reply ***';
+        setReply({
+          to: username,
+          color: colorMXID(mEvent.getSender()),
+          body: parseReply(rawBody)?.body ?? rawBody ?? fallbackBody,
+          event: mEvent,
+        });
+      } catch {
+        setReply({
+          to: '** Unknown user **',
+          color: 'var(--tc-danger-normal)',
+          body: '*** Unable to load reply ***',
+          event: null,
+        });
+      }
     };
     loadReply();
 
@@ -139,6 +150,7 @@ const MessageReplyWrapper = React.memo(({ roomTimeline, eventId }) => {
   }, []);
 
   const focusReply = () => {
+    if (reply?.event === null) return;
     if (reply?.event.isRedacted()) return;
     roomTimeline.loadEventTimeline(eventId);
   };
@@ -235,6 +247,12 @@ MessageBody.propTypes = {
 function MessageEdit({ body, onSave, onCancel }) {
   const editInputRef = useRef(null);
 
+  useEffect(() => {
+    // makes the cursor end up at the end of the line instead of the beginning
+    editInputRef.current.value = '';
+    editInputRef.current.value = body;
+  }, []);
+
   const handleKeyDown = (e) => {
     if (e.keyCode === 13 && e.shiftKey === false) {
       e.preventDefault();
@@ -251,6 +269,7 @@ function MessageEdit({ body, onSave, onCancel }) {
         placeholder="Edit message"
         required
         resizable
+        autoFocus
       />
       <div className="message__edit-btns">
         <Button type="submit" variant="primary">Save</Button>
@@ -304,9 +323,11 @@ function genReactionMsg(userIds, reaction) {
       {userIds.map((userId, index) => (
         <React.Fragment key={userId}>
           {twemojify(getUsername(userId))}
-          <span style={{ opacity: '.6' }}>
-            {index === userIds.length - 1 ? ' and ' : ', '}
-          </span>
+          {index < userIds.length - 1 && (
+            <span style={{ opacity: '.6' }}>
+              {index === userIds.length - 2 ? ' and ' : ', '}
+            </span>
+          )}
         </React.Fragment>
       ))}
       <span style={{ opacity: '.6' }}>{' reacted with '}</span>
@@ -355,13 +376,12 @@ MessageReaction.propTypes = {
 
 function MessageReactionGroup({ roomTimeline, mEvent }) {
   const { roomId, room, reactionTimeline } = roomTimeline;
-  const eventId = mEvent.getId();
   const mx = initMatrix.matrixClient;
   const reactions = {};
   const shortcodeToEmoji = getShortcodeToCustomEmoji(room);
   const canSendReaction = room.currentState.maySendEvent('m.reaction', mx.getUserId());
 
-  const eventReactions = reactionTimeline.get(eventId);
+  const eventReactions = reactionTimeline.get(mEvent.getId());
   const addReaction = (key, count, senderId, isActive) => {
     let reaction = reactions[key];
     if (reaction === undefined) {
@@ -412,7 +432,7 @@ function MessageReactionGroup({ roomTimeline, mEvent }) {
             users={reactions[key].users}
             isActive={reactions[key].isActive}
             onClick={() => {
-              toggleEmoji(roomId, eventId, key, roomTimeline);
+              toggleEmoji(roomId, mEvent.getId(), key, roomTimeline);
             }}
           />
         ))
@@ -420,7 +440,7 @@ function MessageReactionGroup({ roomTimeline, mEvent }) {
       {canSendReaction && (
         <IconButton
           onClick={(e) => {
-            pickEmoji(e, roomId, eventId, roomTimeline);
+            pickEmoji(e, roomId, mEvent.getId(), roomTimeline);
           }}
           src={EmojiAddIC}
           size="extra-small"
@@ -450,7 +470,6 @@ const MessageOptions = React.memo(({
 }) => {
   const { roomId, room } = roomTimeline;
   const mx = initMatrix.matrixClient;
-  const eventId = mEvent.getId();
   const senderId = mEvent.getSender();
 
   const myPowerlevel = room.getMember(mx.getUserId())?.powerLevel;
@@ -461,7 +480,7 @@ const MessageOptions = React.memo(({
     <div className="message__options">
       {canSendReaction && (
         <IconButton
-          onClick={(e) => pickEmoji(e, roomId, eventId, roomTimeline)}
+          onClick={(e) => pickEmoji(e, roomId, mEvent.getId(), roomTimeline)}
           src={EmojiAddIC}
           size="extra-small"
           tooltip="Add reaction"
@@ -499,7 +518,7 @@ const MessageOptions = React.memo(({
                   iconSrc={BinIC}
                   onClick={() => {
                     if (window.confirm('Are you sure you want to delete this event')) {
-                      redactEvent(roomId, eventId);
+                      redactEvent(roomId, mEvent.getId());
                     }
                   }}
                 >
@@ -629,7 +648,7 @@ function Message({
     setIsEditing(true);
   }, []);
   const reply = useCallback(() => {
-    replyTo(senderId, eventId, body);
+    replyTo(senderId, mEvent.getId(), body);
   }, [body]);
 
   if (body === undefined) return null;

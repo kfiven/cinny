@@ -145,6 +145,7 @@ function RoomSearch({ roomId }) {
             placeholder="Search for keywords"
             name="room-search-input"
             disabled={isRoomEncrypted}
+            autoFocus
           />
           <Button iconSrc={SearchIC} variant="primary" type="submit">Search</Button>
         </div>
