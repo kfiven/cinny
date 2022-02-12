@@ -36,6 +36,9 @@ class InitMatrix extends EventEmitter {
       cryptoStore: new sdk.IndexedDBCryptoStore(global.indexedDB, 'crypto-store'),
       deviceId: secret.deviceId,
       timelineSupport: true,
+      verificationMethods: [
+        'm.sas.v1',
+      ],
     });
 
     await this.matrixClient.initCrypto();
