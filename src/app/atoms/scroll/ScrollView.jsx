@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import './ScrollView.scss';
 
 const ScrollView = React.forwardRef(({
-  horizontal, vertical, autoHide, invisible, onScroll, children,
+  horizontal, vertical, autoHide, invisible, focusable, onScroll, children,
 }, ref) => {
   let scrollbarClasses = '';
   if (horizontal) scrollbarClasses += ' scrollbar__h';
@@ -11,7 +11,7 @@ const ScrollView = React.forwardRef(({
   if (autoHide) scrollbarClasses += ' scrollbar--auto-hide';
   if (invisible) scrollbarClasses += ' scrollbar--invisible';
   return (
-    <div onScroll={onScroll} ref={ref} className={`scrollbar${scrollbarClasses}`}>
+    <div onScroll={onScroll} ref={ref} className={`scrollbar${scrollbarClasses}`} tabIndex={focusable ? undefined : -1}>
       {children}
     </div>
   );
@@ -22,6 +22,7 @@ ScrollView.defaultProps = {
   vertical: true,
   autoHide: false,
   invisible: false,
+  focusable: true,
   onScroll: null,
 };
 
@@ -30,6 +31,7 @@ ScrollView.propTypes = {
   vertical: PropTypes.bool,
   autoHide: PropTypes.bool,
   invisible: PropTypes.bool,
+  focusable: PropTypes.bool,
   onScroll: PropTypes.func,
   children: PropTypes.node.isRequired,
 };
