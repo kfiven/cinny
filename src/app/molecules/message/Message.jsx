@@ -184,7 +184,7 @@ const MessageBody = React.memo(({
   if (typeof body !== 'string') return <div className="message__body">{body}</div>;
 
   let content = isCustomHTML
-    ? twemojify(sanitizeCustomHtml(body), undefined, true, false)
+    ? twemojify(sanitizeCustomHtml(body), undefined, true, false, true)
     : twemojify(body, undefined, true);
 
   // Determine if this message should render with large emojis
