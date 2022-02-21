@@ -27,6 +27,7 @@
     "flux": "^4.0.3",
     "formik": "^2.2.9",
     "html-react-parser": "^1.4.8",
+    "katex": "^0.15.2",
     "linkifyjs": "^2.1.9",
     "matrix-js-sdk": "^15.5.2",
     "micromark": "^3.0.10",
