@@ -114,3 +114,7 @@ export function getScrollInfo(target) {
 export function avatarInitials(text) {
   return [...text][0];
 }
+
+export function getCssVar(name) {
+  return getComputedStyle(document.body).getPropertyValue(name);
+}
