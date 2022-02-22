@@ -23,11 +23,25 @@ export function selectRoom(roomId, eventId) {
   });
 }
 
-export function openSpaceSettings(spaceId, tabText) {
+export function openSpaceSettings(roomId, tabText) {
   appDispatcher.dispatch({
     type: cons.actions.navigation.OPEN_SPACE_SETTINGS,
-    spaceId,
+    roomId,
     tabText,
+  });
+}
+
+export function openSpaceManage(roomId) {
+  appDispatcher.dispatch({
+    type: cons.actions.navigation.OPEN_SPACE_MANAGE,
+    roomId,
+  });
+}
+
+export function openSpaceAddExisting(roomId) {
+  appDispatcher.dispatch({
+    type: cons.actions.navigation.OPEN_SPACE_ADDEXISTING,
+    roomId,
   });
 }
 
@@ -92,6 +106,13 @@ export function openReadReceipts(roomId, userIds) {
     type: cons.actions.navigation.OPEN_READRECEIPTS,
     roomId,
     userIds,
+  });
+}
+
+export function openViewSource(event) {
+  appDispatcher.dispatch({
+    type: cons.actions.navigation.OPEN_VIEWSOURCE,
+    event,
   });
 }
 
