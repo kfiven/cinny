@@ -5,21 +5,14 @@ import PropTypes from 'prop-types';
 import initMatrix from '../../../client/initMatrix';
 import navigation from '../../../client/state/navigation';
 import { openReusableContextMenu } from '../../../client/action/navigation';
-import { createSpaceShortcut, deleteSpaceShortcut } from '../../../client/action/room';
 import { getEventCords, abbreviateNumber } from '../../../util/common';
+import { joinRuleToIconSrc } from '../../../util/matrixUtil';
 
 import IconButton from '../../atoms/button/IconButton';
 import RoomSelector from '../../molecules/room-selector/RoomSelector';
-import RoomOptions from '../../molecules/room-optons/RoomOptions';
+import RoomOptions from '../../molecules/room-options/RoomOptions';
+import SpaceOptions from '../../molecules/space-options/SpaceOptions';
 
-import HashIC from '../../../../public/res/ic/outlined/hash.svg';
-import HashGlobeIC from '../../../../public/res/ic/outlined/hash-globe.svg';
-import HashLockIC from '../../../../public/res/ic/outlined/hash-lock.svg';
-import SpaceIC from '../../../../public/res/ic/outlined/space.svg';
-import SpaceGlobeIC from '../../../../public/res/ic/outlined/space-globe.svg';
-import SpaceLockIC from '../../../../public/res/ic/outlined/space-lock.svg';
-import PinIC from '../../../../public/res/ic/outlined/pin.svg';
-import PinFilledIC from '../../../../public/res/ic/filled/pin.svg';
 import VerticalMenuIC from '../../../../public/res/ic/outlined/vertical-menu.svg';
 
 function Selector({
@@ -50,49 +43,16 @@ function Selector({
     };
   }, []);
 
-  const openRoomOptions = (e) => {
+  const openOptions = (e) => {
     e.preventDefault();
     openReusableContextMenu(
       'right',
       getEventCords(e, '.room-selector'),
-      (closeMenu) => <RoomOptions roomId={roomId} afterOptionSelect={closeMenu} />,
+      room.isSpaceRoom()
+        ? (closeMenu) => <SpaceOptions roomId={roomId} afterOptionSelect={closeMenu} />
+        : (closeMenu) => <RoomOptions roomId={roomId} afterOptionSelect={closeMenu} />,
     );
   };
-
-  const joinRuleToIconSrc = (joinRule) => ({
-    restricted: () => (room.isSpaceRoom() ? SpaceIC : HashIC),
-    invite: () => (room.isSpaceRoom() ? SpaceLockIC : HashLockIC),
-    public: () => (room.isSpaceRoom() ? SpaceGlobeIC : HashGlobeIC),
-  }[joinRule]?.() || null);
-
-  if (room.isSpaceRoom()) {
-    return (
-      <RoomSelector
-        key={roomId}
-        name={room.name}
-        roomId={roomId}
-        iconSrc={joinRuleToIconSrc(room.getJoinRule())}
-        isUnread={noti.hasNoti(roomId)}
-        notificationCount={abbreviateNumber(noti.getTotalNoti(roomId))}
-        isAlert={noti.getHighlightNoti(roomId) !== 0}
-        onClick={onClick}
-        options={(
-          <IconButton
-            size="extra-small"
-            variant="surface"
-            tooltip={initMatrix.roomList.spaceShortcut.has(roomId) ? 'Unpin' : 'Pin to sidebar'}
-            tooltipPlacement="right"
-            src={initMatrix.roomList.spaceShortcut.has(roomId) ? PinFilledIC : PinIC}
-            onClick={() => {
-              if (initMatrix.roomList.spaceShortcut.has(roomId)) deleteSpaceShortcut(roomId);
-              else createSpaceShortcut(roomId);
-              forceUpdate({});
-            }}
-          />
-        )}
-      />
-    );
-  }
 
   return (
     <RoomSelector
@@ -100,20 +60,20 @@ function Selector({
       name={room.name}
       roomId={roomId}
       imageSrc={isDM ? imageSrc : null}
-      iconSrc={isDM ? null : joinRuleToIconSrc(room.getJoinRule())}
+      iconSrc={isDM ? null : joinRuleToIconSrc(room.getJoinRule(), room.isSpaceRoom())}
       isSelected={isSelected}
       isUnread={noti.hasNoti(roomId)}
       notificationCount={abbreviateNumber(noti.getTotalNoti(roomId))}
       isAlert={noti.getHighlightNoti(roomId) !== 0}
       onClick={onClick}
-      onContextMenu={openRoomOptions}
+      onContextMenu={openOptions}
       options={(
         <IconButton
           size="extra-small"
           tooltip="Options"
           tooltipPlacement="right"
           src={VerticalMenuIC}
-          onClick={openRoomOptions}
+          onClick={openOptions}
         />
       )}
     />
