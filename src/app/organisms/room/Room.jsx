@@ -29,7 +29,6 @@ function Room() {
     }
   };
   const handleDrawerToggling = (visiblity) => setIsDrawer(visiblity);
-
   useEffect(() => {
     navigation.on(cons.events.navigation.ROOM_SELECTED, handleRoomSelected);
     settings.on(cons.events.settings.PEOPLE_DRAWER_TOGGLED, handleDrawerToggling);
@@ -41,6 +40,15 @@ function Room() {
   }, []);
 
   if (roomTimeline === null) return <Welcome />;
+
+  /* on first load we need to check the visibility of the people drawer */
+  if (window.localStorage.getItem('drawers') === 'false') {
+    // hide .navigation__wrapper if people drawer is hidden (it's not a bug, it's a feature)
+    document.querySelector('.navigation__wrapper').style.display = 'none';
+    // this creates a kinda "zen" mode where the room view is the only thing visible
+  } else {
+     document.querySelector('.navigation__wrapper').style.display = 'block';
+  }
 
   return (
     <div className="room">

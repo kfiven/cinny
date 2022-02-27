@@ -9,10 +9,13 @@ import * as roomActions from '../../../client/action/room';
 
 import { MenuHeader, MenuItem } from '../../atoms/context-menu/ContextMenu';
 import RoomNotification from '../room-notification/RoomNotification';
+import { togglePeopleDrawer } from '../../../client/action/settings';
+import settings from '../../../client/state/settings';
 
 import TickMarkIC from '../../../../public/res/ic/outlined/tick-mark.svg';
 import AddUserIC from '../../../../public/res/ic/outlined/add-user.svg';
 import LeaveArrowIC from '../../../../public/res/ic/outlined/leave-arrow.svg';
+import DesktopIC from '../../../../public/res/ic/outlined/desktop.svg';
 
 function RoomOptions({ roomId, afterOptionSelect }) {
   const mx = initMatrix.matrixClient;
@@ -31,12 +34,29 @@ function RoomOptions({ roomId, afterOptionSelect }) {
     afterOptionSelect();
   };
   const handleLeaveClick = () => {
-    if (confirm('Are you really want to leave this room?')) {
+    if (confirm('Do you really want to leave this room?')) {
       roomActions.leave(roomId);
       afterOptionSelect();
     }
   };
+  const handleNavWrapper = () => {
+    if (window.localStorage.getItem('drawers') === 'false') {
+      // hide .navigation__wrapper if people drawer is hidden (it's not a bug, it's a feature)
+      document.querySelector('.navigation__wrapper').style.display = 'none';
+      window.localStorage.setItem('drawers', 'true');
+      // this creates a kinda "zen" mode where the room view is the only thing visible
+    } else {
+      document.querySelector('.navigation__wrapper').style.display = 'block';
+      window.localStorage.setItem('drawers', 'false');
+    }
+  };
+  const handleToggleDrawers = () => {
+    togglePeopleDrawer();
+    handleNavWrapper();
+    afterOptionSelect();
+  };
 
+  /* return the room options */
   return (
     <div style={{ maxWidth: '256px' }}>
       <MenuHeader>{twemojify(`Options for ${initMatrix.matrixClient.getRoom(roomId)?.name}`)}</MenuHeader>
@@ -47,6 +67,12 @@ function RoomOptions({ roomId, afterOptionSelect }) {
         disabled={!canInvite}
       >
         Invite
+      </MenuItem>
+      <MenuItem
+        iconSrc={DesktopIC}
+        onClick={handleToggleDrawers}
+      >
+        {settings.isPeopleDrawer ? 'Hide sidebars' : 'Show sidebars'}
       </MenuItem>
       <MenuItem iconSrc={LeaveArrowIC} variant="danger" onClick={handleLeaveClick}>Leave</MenuItem>
       <MenuHeader>Notification</MenuHeader>

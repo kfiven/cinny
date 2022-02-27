@@ -1,41 +1,35 @@
 :root {
-
-  /* background color | --bg-[background type]: value */
-  --bg-surface: #FFFFFF;
-  --bg-surface-transparent: #FFFFFF00;
-  --bg-surface-low: #F6F6F6;
-  --bg-surface-low-transparent: #F6F6F600;
-  --bg-surface-extra-low: #F6F6F6;
-  --bg-surface-extra-low-transparent: #F6F6F600;
-  --bg-surface-hover: rgba(0, 0, 0, 3%);
-  --bg-surface-active: rgba(0, 0, 0, 5%);
-  --bg-surface-border: rgba(0, 0, 0, 6%);
-
-  --bg-primary: rgb(83, 110, 234);
-  --bg-primary-hover: rgba(83, 110, 234, 80%);
-  --bg-primary-active: rgba(83, 110, 234, 70%);
-  --bg-primary-border: rgba(83, 110, 234, 38%);
-
-  --bg-positive: rgb(69, 184, 59);
-  --bg-positive-hover: rgba(69, 184, 59, 8%);
-  --bg-positive-active: rgba(69, 184, 59, 15%);
-  --bg-positive-border: rgba(69, 184, 59, 40%);
-  
-  --bg-caution: rgb(255, 179, 0);
-  --bg-caution-hover: rgba(255, 179, 0, 8%);
-  --bg-caution-active: rgba(255, 179, 0, 15%);
-  --bg-caution-border: rgba(255, 179, 0, 40%);
-
-  --bg-danger: rgb(240, 71, 71);
-  --bg-danger-hover: rgba(240, 71, 71, 5%);
-  --bg-danger-active: rgba(240, 71, 71, 10%);
-  --bg-danger-border: rgba(240, 71, 71, 20%);
-
-  --bg-tooltip: #353535;
-  --bg-badge: #989898;
-  --bg-ping: hsla(137deg, 100%, 68%, 40%);
-  --bg-ping-hover: hsla(137deg, 100%, 68%, 50%);
-  --bg-divider: hsla(0, 0%, 0%, .1);
+/* background color | --bg-[background type]: value */
+    --bg-surface: #FFFFFF;
+    --bg-surface-transparent: #FFFFFF00;
+    --bg-surface-low: #F6F6F6;
+    --bg-surface-low-transparent: #F6F6F600;
+    --bg-surface-extra-low: #F6F6F6;
+    --bg-surface-extra-low-transparent: #F6F6F600;
+    --bg-surface-hover: rgba(0, 0, 0, 3%);
+    --bg-surface-active: rgba(0, 0, 0, 5%);
+    --bg-surface-border: rgba(0, 0, 0, 6%);
+    --bg-primary: rgb(99, 102, 241);
+    --bg-primary-hover: rgba(99, 102, 241, 80%);
+    --bg-primary-active: rgba(99, 102, 241, 70%);
+    --bg-primary-border: rgba(99, 102, 241, 38%);
+    --bg-positive: rgb(69, 184, 59);
+    --bg-positive-hover: rgba(69, 184, 59, 8%);
+    --bg-positive-active: rgba(69, 184, 59, 15%);
+    --bg-positive-border: rgba(69, 184, 59, 40%);
+    --bg-caution: rgb(255, 179, 0);
+    --bg-caution-hover: rgba(255, 179, 0, 8%);
+    --bg-caution-active: rgba(255, 179, 0, 15%);
+    --bg-caution-border: rgba(255, 179, 0, 40%);
+    --bg-danger: rgb(240, 71, 71);
+    --bg-danger-hover: rgba(240, 71, 71, 5%);
+    --bg-danger-active: rgba(240, 71, 71, 10%);
+    --bg-danger-border: rgba(240, 71, 71, 20%);
+    --bg-tooltip: #353535;
+    --bg-badge: #989898;
+    --bg-ping: hsla(137deg, 100%, 68%, 40%);
+    --bg-ping-hover: hsla(137deg, 100%, 68%, 50%);
+    --bg-divider: hsla(0, 0%, 0%, .1);
 
   /* text color | --tc-[background type]-[priority]: value */
   --tc-surface-high: #000000;
@@ -203,48 +197,40 @@
 
 @mixin dark-mode() {
   /* background color | --bg-[background type]: value */
-  --bg-surface: hsl(208, 8%, 20%);
-  --bg-surface-transparent: hsla(208, 8%, 20%, 0);
-  --bg-surface-low: hsl(208, 8%, 16%);
-  --bg-surface-low-transparent: hsla(208, 8%, 16%, 0);
-  --bg-surface-extra-low: hsl(208, 8%, 14%);
-  --bg-surface-extra-low-transparent: hsla(208, 8%, 14%, 0);
-  --bg-surface-hover: rgba(255, 255, 255, 3%);
-  --bg-surface-active: rgba(255, 255, 255, 5%);
-  --bg-surface-border: rgba(0, 0, 0, 20%);
-
-  --bg-primary: rgb(42, 98, 166);
-  --bg-primary-hover: rgba(42, 98, 166, 80%);
-  --bg-primary-active: rgba(42, 98, 166, 70%);
-  --bg-primary-border: rgba(42, 98, 166, 38%);
-
-  --bg-tooltip: #000;
-  --bg-badge: hsl(0, 0%, 75%);
-  --bg-ping: hsla(137deg, 100%, 38%, 40%);
-  --bg-ping-hover: hsla(137deg, 100%, 38%, 50%);
-  --bg-divider: hsla(0, 0%, 100%, .1);
-
-
-  /* text color | --tc-[background type]-[priority]: value */
-  --tc-surface-high: rgba(255, 255, 255, 98%);
-  --tc-surface-normal: rgba(255, 255, 255, 94%);
-  --tc-surface-normal-low: rgba(255, 255, 255, 60%);
-  --tc-surface-low: rgba(255, 255, 255, 58%);
-  
-  --tc-primary-high: #ffffff;
-  --tc-primary-normal: rgba(255, 255, 255, 0.68);
-  --tc-primary-low: rgba(255, 255, 255, 0.4);
-
-  --tc-code: #e565b1;
-  --tc-link: hsl(213deg 94% 73%);
-  --tc-badge: black;
-
-  /* system icons | --ic-[background type]-[priority]: value */
-  --ic-surface-high: rgb(255, 255, 255);
-  --ic-surface-normal: rgba(255, 255, 255, 84%);
-  --ic-surface-low: rgba(255, 255, 255, 64%);
-  --ic-primary-normal: #ffffff;
-
+    --bg-surface: rgb(24, 24, 24);
+    --bg-surface-transparent: rgba(24, 24, 24, 0.8);
+    --bg-surface-low: #1b1b1b;
+    --bg-surface-low-transparent: #1a1a1ae8;
+    --bg-surface-extra-low: #181818;
+    --bg-surface-extra-low-transparent: rgba(13, 13, 13, 0.3);
+    --bg-surface-hover: rgba(30, 30, 30, 1);
+    --bg-surface-active: rgba(30, 30, 30, 0.8);
+    --bg-surface-border: rgba(30, 30, 30, 0.9);
+    --bg-primary: rgb(99, 102, 241);
+    --bg-primary-hover: rgba(99, 102, 241, 80%);
+    --bg-primary-active: rgba(99, 102, 241, 70%);
+    --bg-primary-border: rgba(99, 102, 241, 38%);
+    --bg-tooltip: #000;
+    --bg-badge: hsl(0, 0%, 75%);
+    --bg-ping: hsla(137deg, 100%, 38%, 40%);
+    --bg-ping-hover: hsla(137deg, 100%, 38%, 50%);
+    --bg-divider: hsla(0, 0%, 100%, .1);
+    /* text color | --tc-[background type]-[priority]: value */
+    --tc-surface-high: rgba(255, 255, 255, 98%);
+    --tc-surface-normal: rgba(255, 255, 255, 94%);
+    --tc-surface-normal-low: rgba(255, 255, 255, 60%);
+    --tc-surface-low: rgba(255, 255, 255, 58%);
+    --tc-primary-high: #ffffff;
+    --tc-primary-normal: rgba(255, 255, 255, 0.68);
+    --tc-primary-low: rgba(255, 255, 255, 0.4);
+    --tc-code: #e565b1;
+    --tc-link: hsl(213deg 94% 73%);
+    --tc-badge: black;
+    /* system icons | --ic-[background type]-[priority]: value */
+    --ic-surface-high: rgb(255, 255, 255);
+    --ic-surface-normal: rgba(255, 255, 255, 84%);
+    --ic-surface-low: rgba(255, 255, 255, 64%);
+    --ic-primary-normal: #ffffff;
   & .text {
     /* override user mxid colors for texts */
     --mx-uc-1: hsl(208, 100%, 58%);

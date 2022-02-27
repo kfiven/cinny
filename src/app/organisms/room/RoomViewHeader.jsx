@@ -23,6 +23,7 @@ import RoomOptions from '../../molecules/room-options/RoomOptions';
 
 import ChevronBottomIC from '../../../../public/res/ic/outlined/chevron-bottom.svg';
 import SearchIC from '../../../../public/res/ic/outlined/search.svg';
+// import DesktopIC from '../../../../public/res/ic/outlined/desktop.svg';
 import UserIC from '../../../../public/res/ic/outlined/user.svg';
 import VerticalMenuIC from '../../../../public/res/ic/outlined/vertical-menu.svg';
 
@@ -71,6 +72,20 @@ function RoomViewHeader({ roomId }) {
     );
   };
 
+  const handleToggleDrawers = () => {
+    togglePeopleDrawer();
+    // we're not going to toggle all drawers now, just the people drawer
+    /* if (window.localStorage.getItem('drawers') === 'false') {
+      // hide .navigation__wrapper if people drawer is hidden (it's not a bug, it's a feature)
+      document.querySelector('.navigation__wrapper').style.display = 'none';
+      window.localStorage.setItem('drawers', 'true');
+      // this creates a kinda "zen" mode where the room view is the only thing visible
+    } else {
+      document.querySelector('.navigation__wrapper').style.display = 'block';
+      window.localStorage.setItem('drawers', 'false');
+    } */
+  };
+
   return (
     <Header>
       <button
@@ -87,7 +102,7 @@ function RoomViewHeader({ roomId }) {
         <RawIcon src={ChevronBottomIC} />
       </button>
       <IconButton onClick={() => toggleRoomSettings(tabText.SEARCH)} tooltip="Search" src={SearchIC} />
-      <IconButton onClick={togglePeopleDrawer} tooltip="People" src={UserIC} />
+      <IconButton onClick={handleToggleDrawers} tooltip="People" src={UserIC} />
       <IconButton
         onClick={openRoomOptions}
         tooltip="Options"

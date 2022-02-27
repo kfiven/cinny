@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import './Settings.scss';
 
@@ -13,6 +13,7 @@ import logout from '../../../client/action/logout';
 import { usePermission } from '../../hooks/usePermission';
 
 import Text from '../../atoms/text/Text';
+import Chip from '../../atoms/chip/Chip';
 import IconButton from '../../atoms/button/IconButton';
 import Button from '../../atoms/button/Button';
 import Toggle from '../../atoms/button/Toggle';
@@ -32,16 +33,60 @@ import BellIC from '../../../../public/res/ic/outlined/bell.svg';
 import InfoIC from '../../../../public/res/ic/outlined/info.svg';
 import PowerIC from '../../../../public/res/ic/outlined/power.svg';
 import CrossIC from '../../../../public/res/ic/outlined/cross.svg';
+import ShieldEmptyIC from '../../../../public/res/ic/outlined/shield-empty.svg';
 
 import CinnySVG from '../../../../public/res/svg/cinny.svg';
 
 function GeneralSection() {
+  const userId = initMatrix.matrixClient.getUserId();
+
+  const [devices, setDevices] = useState(null);
+  const mx = initMatrix.matrixClient;
+
+  useEffect(() => {
+    let isUnmounted = false;
+
+    async function loadDevices() {
+      try {
+        await mx.downloadKeys([userId], true);
+        const myDevices = mx.getStoredDevicesForUser(userId);
+
+        if (isUnmounted) return;
+        setDevices(myDevices);
+      } catch {
+        setDevices([]);
+      }
+    }
+    loadDevices();
+
+    return () => {
+      isUnmounted = true;
+    };
+  }, [userId]);
+
   return (
     <div className="settings-content">
       <SettingTile
         title=""
         content={(
           <ProfileEditor userId={initMatrix.matrixClient.getUserId()} />
+        )}
+      />
+
+      <SettingTile
+        title="My Sessions"
+        content={(
+          <div className="session-info__chips">
+            {devices === null && <Text variant="b2">Loading sessions...</Text>}
+            {devices?.length === 0 && <Text variant="b2">No session found.</Text>}
+            {devices !== null && (devices.map((device) => (
+              <Chip
+                key={device.deviceId}
+                iconSrc={ShieldEmptyIC}
+                text={device.getDisplayName() || device.deviceId}
+              />
+            )))}
+          </div>
         )}
       />
     </div>
@@ -61,7 +106,7 @@ function AppearanceSection() {
             onToggle={() => { toggleSystemTheme(); updateState({}); }}
           />
         )}
-        content={<Text variant="b3">Use light or dark mode based on the system's settings.</Text>}
+        content={<Text variant="b3">Use light or dark mode based on the system&apos;s settings.</Text>}
       />
       {(() => {
         if (!settings.useSystemTheme) {
@@ -83,6 +128,8 @@ function AppearanceSection() {
             />
           );
         }
+
+        return null;
       })()}
       <SettingTile
         title="Markdown formatting"
@@ -200,7 +247,7 @@ function AboutSection() {
       <div className="set-about__branding">
         <img width="60" height="60" src={CinnySVG} alt="Cinny logo" />
         <div>
-          <Text variant="h2" weight='medium'>
+          <Text variant="h2" weight="medium">
             Cinny
             <span className="text text-b3" style={{ margin: '0 var(--sp-extra-tight)' }}>{`v${cons.version}`}</span>
           </Text>
@@ -222,6 +269,31 @@ function AboutSection() {
           <li>
             {/* eslint-disable-next-line react/jsx-one-expression-per-line */ }
             <Text>The <a href="https://twemoji.twitter.com" target="_blank" rel="noreferrer noopener">Twemoji</a> emoji art is © <a href="https://twemoji.twitter.com" target="_blank" rel="noreferrer noopener">Twitter, Inc and other contributors</a> used under the terms of <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noreferrer noopener">CC-BY 4.0</a>.</Text>
+          </li>
+          <li>
+            {/* eslint-disable-next-line react/jsx-one-expression-per-line */ }
+            <Text>The <a href="https://cinny.in/" target="_blank" rel="noreferrer noopener">Cinny</a> client is © <a href="https://github.com/ajbura/cinny/graphs/contributors" target="_blank" rel="noreferrer noopener">Ajay Bura (ajbura) and other contributors</a> used under the terms of the <a href="https://github.com/ajbura/cinny/blob/dev/LICENSE" target="_blank" rel="noreferrer noopener">MIT License</a>.</Text>
+          </li>
+          <li>
+            {/* eslint-disable-next-line react/jsx-one-expression-per-line */ }
+            <Text>The <a href="https://github.com/0aoq/SimpleCSS" target="_blank" rel="noreferrer noopener">SimpleCSS</a> package is © <a href="https://github.com/0aoq" target="_blank" rel="noreferrer noopener">0aoq and other contributors</a> used under the terms of the <a href="https://github.com/0aoq/SimpleCSS/blob/master/LICENSE" target="_blank" rel="noreferrer noopener">MIT License</a>.</Text>
+          </li>
+          <li>
+            {/* eslint-disable-next-line react/jsx-one-expression-per-line */ }
+            <Text>Some packages are supplied by the <a href="https://zbase.dev/~/tidy/?.getPackage" target="_blank" rel="noreferrer noopener">Zerobase Package API</a>, and are licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0" rel="noreferrer noopener" target="_blank">Apache 2.0</a> license.</Text>
+          </li>
+        </ul>
+        <Text variant="s1" weight="medium">chat.zbase.dev Roadmap</Text>
+        <ul>
+          <li>
+            {/* eslint-disable-next-line react/jsx-one-expression-per-line */ }
+            { /* eslint-disable-next-line max-len */ }
+            <Text>Support mobile devices (iOS, Android, etc.) by adding support for collapsing sidebars and adding a mobile-friendly UI. (Planned for public repository too.)</Text>
+          </li>
+          <li>
+            {/* eslint-disable-next-line react/jsx-one-expression-per-line */ }
+            { /* eslint-disable-next-line max-len */ }
+            <Text>Add support for Matrix space creaion within the app.</Text>
           </li>
         </ul>
       </div>
@@ -264,7 +336,9 @@ function Settings({ isOpen, onRequestClose }) {
   const [selectedSection, setSelectedSection] = useState(settingSections[0]);
 
   const handleLogout = () => {
-    if (confirm('Confirm logout')) logout();
+    /* eslint-disable no-restricted-globals, no-alert */
+    const _confirm = confirm('Confirm logout');
+    if (_confirm) logout();
   };
 
   return (
