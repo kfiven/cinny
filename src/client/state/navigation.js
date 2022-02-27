@@ -88,6 +88,12 @@ class Navigation extends EventEmitter {
           prevSelectedRoomId,
           action.eventId,
         );
+        // set window.localStorage.currentRoomId to this.selectedRoomId
+        if (typeof this.selectedRoomId === 'string') {
+            window.localStorage.currentRoomId = this.selectedRoomId;
+        } else {
+            window.localStorage.currentRoomId = toString(this.selectedRoomId);
+        }
       },
       [cons.actions.navigation.OPEN_SPACE_SETTINGS]: () => {
         this.emit(cons.events.navigation.SPACE_SETTINGS_OPENED, action.roomId, action.tabText);

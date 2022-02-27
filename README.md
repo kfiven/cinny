@@ -6,6 +6,7 @@
 - [Getting Started](https://cinny.in)
 - [Contributing](./CONTRIBUTING.md)
 - [Roadmap](https://github.com/ajbura/cinny/projects/11)
+- [About CinnyLite](#CinnyLite)
 
 ## About <a name = "about"></a>
 
@@ -56,6 +57,12 @@ Alternatively you can just pull the [DockerHub image](https://hub.docker.com/r/a
 ### Configuring default Homeserver
 
 To set default Homeserver on login and register page, place a customized [`config.json`](config.json) in webroot of your choice.
+
+## CinnyLite
+
+CinnyLite is a fork of [Cinny](https://github.com/ajbura/cinny), which adds basic mobile support and experimental features that don't follow Cinny's style guide to allow for more experimental development. This fork is not recommended for use as an addition to the official Cinny repository. This fork will only pull security updates and required feature updates from the official Cinny repository.
+
+This project's roadmap is avaliable in the settings tab of the [live version](https://chat.zbase.dev).
 
 ## License
 
