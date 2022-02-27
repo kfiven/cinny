@@ -29,7 +29,6 @@ function Client() {
         'Looks like you have a lot of stuff to heat up!',
         'This is taking a while... Please check the status of your homeserver and ensure that it is running properly.',
         'You&apos;ve been disconnected. Please refresh the page to try again.',
-        'Are you asleep yet? Don&apos;t worry, we&apos;ll refresh for you...',
       ];
       if (counter === msgList.length - 1) {
         setLoadingMsg(msgList[msgList.length - 1]);
@@ -47,12 +46,6 @@ function Client() {
   }, []);
 
   if (isLoading) {
-    setTimeout(() => {
-      if (isLoading) {
-        window.location.reload();
-      }
-    }, 80000);
-
     return (
       <div className="loading-display">
         <button className="loading__logout" onClick={logout} type="button">
