@@ -19,7 +19,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: setup node
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v3
       with:
         node-version: 14
     - name: install Rust stable
