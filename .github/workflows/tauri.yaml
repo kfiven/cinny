@@ -12,18 +12,18 @@ jobs:
 
     runs-on: ${{ matrix.platform }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3.0.0
     - name: Get release
       id: get_release
       uses: bruceadams/get-release@v1.2.3
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: setup node
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v3.0.0
       with:
-        node-version: 14
+        node-version: 16
     - name: install Rust stable
-      uses: actions-rs/toolchain@v1
+      uses: actions-rs/toolchain@v1.0.6
       with:
         toolchain: stable
     - name: install webkit2gtk (ubuntu only)
@@ -32,9 +32,14 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y webkit2gtk-4.0
     - name: install app dependencies and build it
-      run: npm install && npm run build
+      run: npm ci && npm run build
     - uses: tauri-apps/tauri-action@v0
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         releaseId: ${{ steps.get_release.outputs.upload_url }}
+        tagName: app-v__VERSION__
+        releaseName: 'App v__VERSION__'
+        releaseBody: 'See the assets to download this version and install.'
+        releaseDraft: true
+        prerelease: false
