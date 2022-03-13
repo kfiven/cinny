@@ -19,6 +19,8 @@ jobs:
           BUILD_DIRECTORY: "dist"
           NETLIFY_DEPLOY_MESSAGE: "Prod deploy v${{ github.ref }}"
           NETLIFY_DEPLOY_TO_PROD: true
+      - name : Copy files
+        run: cp / /dist
       - name: Release assets
         uses: fnkr/github-action-ghr@v1
         if: startsWith(github.ref, 'refs/tags/')
