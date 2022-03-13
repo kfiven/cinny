@@ -26,6 +26,8 @@
  *   eventType: string | "im.vector.modular.widgets" | "m.widget",
  *   data: object | BigBlueButtWidgetData | null,
  *   mWidgetAdditionalData: MatrixWidget | null,
+ *   id: string,
+ *   roomId: string,
  * }}
  */
 
@@ -61,8 +63,7 @@ class RoomWidget {
       if (Object.entries(eventContent).length !== 0) {
         // By specification we MUST only allow "http:" and "https:" URI schemes
         // But let's only allow https for now
-        if (eventContent.url?.startsWith('https://')
-          && eventContent.data.curl?.startsWith('https://')) {
+        if (eventContent.url?.startsWith('https://')) {
           // Now we can add them (event is in event)
           tempList.push({ content: eventContent, event: ev.event });
         } else {
@@ -87,11 +88,11 @@ class RoomWidget {
   fetchWidgetsMatrix() {
     this.fetchWidgets('m.widgets')
       .forEach((w) => {
-        this.widgets.push({
+        this.widgets.push(this.patchWidget({
           name: w.content.name, // OPTIONAL
           type: w.content.type, // e.g. "m.grafana"
           _urlRaw: w.content.url, // Only https and ~~http~~
-          url: this.doUrlStringInterpolation(w.content.url),
+          url: w.content.url,
           data: w.content.data,
           eventType: w.event.type, // m.matrix
           // User's ID (should be the same as ev.event.sender)
@@ -100,7 +101,9 @@ class RoomWidget {
             waitForIframeLoad: w.content.waitForIframeLoad,
             stateKey: w.event.state_key,
           },
-        });
+          id: w.event.event_id,
+          roomId: w.event.room_id,
+        }));
       });
   }
 
@@ -113,31 +116,65 @@ class RoomWidget {
   fetchWidgetsVector() {
     const a = this.fetchWidgets('im.vector.modular.widgets');
     a.forEach((w) => {
-      this.widgets.push({
+      // Non-custom widgets require special handling
+      // if (w.content.type === 'm.custom') {
+      this.widgets.push(this.patchWidget({
         name: w.content.name, // OPTIONAL
         type: w.content.type,
         _urlRaw: w.content.url,
-        url: this.doUrlStringInterpolation(w.content.url),
+        url: w.content.url,
         data: w.content.data,
         creatorUserId: w.content.sender,
         eventType: w.event.type, // vector widgets
-      });
+        id: w.event.event_id,
+        roomId: w.event.room_id,
+      }));
     });
   }
 
   /**
    * @private
    * @param {string} url Url to interpolate
+   * @param {Object} custom Optional keys to interpolate
    * @returns {string}
    */
-  doUrlStringInterpolation(url) {
+  doUrlStringInterpolation(url, custom = {}) {
+    let modifiedUrl = url;
+    const keys = Object.keys(custom);
+    keys.forEach((key) => {
+      modifiedUrl = modifiedUrl.replace(`$${key}`, custom[key]);
+    });
+
     // Vector spec also mentions URL-individual replacements
     // Here, none are taken
-    return url
+    return modifiedUrl
       .replace('$matrix_user_id', this.userId)
       .replace('$matrix_room_id', this.room.name)
       .replace('$matrix_display_name', this.user.displayName)
       .replace('$matrix_avatar_url', this.user.avatarUrl);
+  }
+
+  /**
+   * Patch widgets
+   * @param {Widget} rawWidget
+   * @returns {Widget} patched widget
+   */
+  patchWidget(rawWidget) {
+    const widget = rawWidget;
+    widget.url = this.doUrlStringInterpolation(widget.url, widget.data);
+
+    if (widget.type === 'custom' || widget.type === 'm.custom') {
+      return widget;
+    }
+    if (widget.type === 'jitsi' || widget.type === 'm.jitsi') {
+      const oUrl = new URL(widget.url);
+      widget.url = `https://${oUrl.searchParams.get('conferenceDomain') ?? 'meet.element.io'}/${oUrl.searchParams.get('confId')}#jitsi_meet_external_api_id=1&config.startAudioOnly=false&interfaceConfig.SHOW_JITSI_WATERMARK=false&interfaceConfig.SHOW_WATERMARK_FOR_GUESTS=false&interfaceConfig.MAIN_TOOLBAR_BUTTONS=%5B%5D&interfaceConfig.VIDEO_LAYOUT_FIT=%22height%22&appData.localStorageContent=null`;
+    }
+    if (widget.type === 'etherpad' || widget.type === 'm.etherpad') {
+      widget.url = `https://scalar.vector.im/etherpad/p/${widget.data.padname}?userName=${this.userId}&showControls=true&showChat=false&chatAndUsers=false&alwaysShowChat=false`;
+    }
+
+    return widget;
   }
 
   get widgetNames() {

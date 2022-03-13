@@ -66,8 +66,8 @@ function RoomView({ roomTimeline, eventId }) {
   let currentWidget = null;
   // Get Iframe if a widget is selected
   function getIframe() {
-    if (activeTab === chatString) return (<></>);
-    if (widgetClass.widgets.length === 0) return (<></>);
+    if (activeTab === chatString) return null;
+    if (widgetClass.widgets.length === 0) return null;
 
     const widget = widgetClass.widgetByName(activeTab);
 
@@ -94,10 +94,15 @@ function RoomView({ roomTimeline, eventId }) {
     currentWidget = widget;
 
     return (
+      // Setting a title causes annoying tooltips
+      // eslint-disable-next-line jsx-a11y/iframe-has-title
       <iframe
         className="widget-iframe"
         src={widget.url}
-        title={`Widget: ${widget.name}`}
+        // title={`Widget: ${widget.name}`}
+        allow="fullscreen; microphone; camera; encrypted-media; autoplay; display-capture; clipboard-write;"
+        sandbox="allow-scripts allow-presentation allow-popups allow-downloads allow-forms allow-popups-to-escape-sandbox allow-same-origin"
+        referrerPolicy="no-referrer"
       />
     );
   }
@@ -127,7 +132,7 @@ function RoomView({ roomTimeline, eventId }) {
                 src={ExternalIC}
                 size="extra-small"
                 onClick={() => {
-                  window.open(currentWidget.url, currentWidget.name, 'width=800,height=600');
+                  window.open(currentWidget.url, `Cinny widget: ${currentWidget.name}`, 'popup,noopener,noreferrer'); // width=800,height=600
                   setActiveTab(chatString);
                 }}
               />
