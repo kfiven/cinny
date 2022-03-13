@@ -19,3 +19,9 @@ jobs:
           BUILD_DIRECTORY: "dist"
           NETLIFY_DEPLOY_MESSAGE: "Prod deploy v${{ github.ref }}"
           NETLIFY_DEPLOY_TO_PROD: true
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3.0.0
+        with:
+          name: prodbuild
+          path: dist.tar.gz
+          retention-days: 1
