@@ -43,7 +43,7 @@ jobs:
     steps:
     - name: Get app version
       id: vars
-      run: echo ::set-output name=tag::$(jq .package.version tauri.conf.json)
+      run: echo ::set-output name=tag::$(jq .package.version src-tauri/tauri.conf.json)
     - name: Upload tagged release
       uses: softprops/action-gh-release@v1
       with:
