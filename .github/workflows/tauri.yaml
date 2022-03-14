@@ -40,7 +40,10 @@ jobs:
         releaseId: ${{ steps.get_release.outputs.upload_url }}
   upload-assest:
     runs-on: ubuntu-latest
+    needs: publish-tauri
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v3.0.0
     - name: Get app version
       id: vars
       run: echo ::set-output name=tag::$(jq .package.version src-tauri/tauri.conf.json)
