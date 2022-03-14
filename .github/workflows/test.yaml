@@ -12,7 +12,7 @@ jobs:
     - uses: actions/checkout@v3.0.0
     - name: Get app version
       id: vars
-      run: echo ::set-output name=tag::$(jq .package.version src-tauri/tauri.conf.json)
+      run: echo ::set-output name=tag::$(jq .package.version src-tauri/tauri.conf.json | tr -d '"')
     - name: see
       run: ls -a
     - name: Upload tagged release
