@@ -3,7 +3,7 @@ name: 'Deploy to Netlify (dev)'
 on:
   push:
     branches:
-       - test22
+       - tauri-app
 
 jobs:
   upload-assest:
