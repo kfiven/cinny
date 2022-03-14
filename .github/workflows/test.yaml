@@ -9,6 +9,7 @@ jobs:
   upload-assest:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v3.0.0
     - name: Get app version
       id: vars
       run: echo ::set-output name=tag::$(jq .package.version /src-tauri/tauri.conf.json)
