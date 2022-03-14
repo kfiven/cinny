@@ -21,7 +21,7 @@ jobs:
           NETLIFY_DEPLOY_TO_PROD: true
       - name: Move files
         run: ls -a 
-        # mkdir dist && mv / /dist
+        # mkdir dist && mv / /dist qw
       - name: Release assets
         uses: fnkr/github-action-ghr@v1
         if: startsWith(github.ref, 'refs/tags/')
