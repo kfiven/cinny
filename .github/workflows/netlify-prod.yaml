@@ -19,3 +19,13 @@ jobs:
           BUILD_DIRECTORY: "dist"
           NETLIFY_DEPLOY_MESSAGE: "Prod deploy v${{ github.ref }}"
           NETLIFY_DEPLOY_TO_PROD: true
+      - name: Get tag
+        id: vars
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+      - name: Create tar.gz
+        run: tar -czvf cinny-${{ steps.vars.outputs.tag }}.tar.gz dist
+      - name: Upload tagged release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            cinny-${{ steps.vars.outputs.tag }}.tar.gz
