@@ -20,7 +20,8 @@ jobs:
           NETLIFY_DEPLOY_MESSAGE: "Prod deploy v${{ github.ref }}"
           NETLIFY_DEPLOY_TO_PROD: true
       - name: Move files
-        run: mkdir dist && mv / /dist
+        run: ls -a 
+        # mkdir dist && mv / /dist
       - name: Release assets
         uses: fnkr/github-action-ghr@v1
         if: startsWith(github.ref, 'refs/tags/')
