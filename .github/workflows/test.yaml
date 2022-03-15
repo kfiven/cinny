@@ -10,16 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3.0.0
-    - name: Get app version
-      id: vars
-      run: echo ::set-output name=tag::$(jq .package.version src-tauri/tauri.conf.json | tr -d '"')
-    - name: see
-      run: ls -a
-    - name: Upload tagged release
-      uses: softprops/action-gh-release@v1
+    - name: Build Docker image
+      uses: docker/build-push-action@v2.9.0
       with:
-        files: |
-          /src-tauri/target/release/bundle/appimage/cinny_${{ steps.vars.outputs.tag }}_amd64.AppImage
-          /src-tauri/target/release/bundle/deb/cinny_${{ steps.vars.outputs.tag }}_amd64.deb
-          /src-tauri/target/release/bundle/dmg/cinny_${{ steps.vars.outputs.tag }}_x64.dmg
-          /src-tauri/target/release/bundle/msi/cinny_${{ steps.vars.outputs.tag }}_x64_en-US.msi
+        context: .
+        push: false
