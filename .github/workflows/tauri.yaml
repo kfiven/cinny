@@ -38,7 +38,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         releaseId: ${{ steps.get_release.outputs.upload_url }}
-    - name: Get app version
+    - name: Get app version (macos, ubuntu)
+      if: matrix.platform != 'windows-latest'
       id: vars
       run: echo ::set-output name=tag::$(jq .package.version src-tauri/tauri.conf.json | tr -d '"')
     - name: Upload tagged release (macos)
@@ -54,10 +55,19 @@ jobs:
         files: |
           src-tauri/target/release/bundle/appimage/cinny_${{ steps.vars.outputs.tag }}_amd64.AppImage
           src-tauri/target/release/bundle/deb/cinny_${{ steps.vars.outputs.tag }}_amd64.deb
+    - name: Get app version (windows)
+      if: matrix.platform == 'windows-latest'
+      run: |
+        $json = (Get-Content "src-tauri\tauri.conf.json" -Raw) | ConvertFrom-Json
+        $version = $json.package.version
+        echo "Version: ${version}"
+        echo "TAURI_VERSION=${version}" >> $Env:GITHUB_ENV
+        echo "${Env:TAURI_VERSION}"
+      shell: pwsh
     - name: Upload tagged release (windows)
       if: matrix.platform == 'windows-latest'
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          src-tauri\target\release\bundle\msi\cinny_${{ steps.vars.outputs.tag }}_x64_en-US.msi
+          src-tauri\target\release\bundle\msi\cinny_${{ env.TAURI_VERSION }}_x64_en-US.msi
           
