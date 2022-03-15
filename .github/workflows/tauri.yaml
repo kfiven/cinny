@@ -53,7 +53,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: |
-          src-tauri/target/release/bundle/appimage/cinny_${{ steps.vars.outputs.tag }}_amd64.AppImage
+          cinny_${{ steps.vars.outputs.tag }}_amd64.AppImage
           src-tauri/target/release/bundle/deb/cinny_${{ steps.vars.outputs.tag }}_amd64.deb
           src-tauri/target/release/bundle/dmg/cinny_${{ steps.vars.outputs.tag }}_x64.dmg
           src-tauri/target/release/bundle/msi/cinny_${{ steps.vars.outputs.tag }}_x64_en-US.msi
