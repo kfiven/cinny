@@ -59,6 +59,7 @@ module.exports = {
         appDescription: 'Yet another matrix client',
         developerName: 'Ajay Bura',
         developerURL: 'https://github.com/ajbura',
+        theme_color: '#212427',
         icons: {
           coast: false,
           yandex: false,
