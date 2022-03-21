@@ -25,11 +25,18 @@ jobs:
         run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
       - name: Create tar.gz
         run: tar -czvf cinny-${{ steps.vars.outputs.tag }}.tar.gz dist
+      - name: Sign tar.gz
+        uses: actionhippie/gpgsign@v1
+        with:
+          private_key: ${{ secrets.GNUPG_KEY }}
+          detach_sign: true
+          files: cinny-${{ steps.vars.outputs.tag }}.tar.gz
       - name: Upload tagged release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v0.1.14
         with:
           files: |
             cinny-${{ steps.vars.outputs.tag }}.tar.gz
+            cinny-${{ steps.vars.outputs.tag }}.tar.gz.asc
 
   push_to_dockerhub:
     name: Push Docker image to Docker Hub
