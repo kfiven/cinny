@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import './RoomViewHeader.scss';
 
@@ -25,6 +25,7 @@ import ChevronBottomIC from '../../../../public/res/ic/outlined/chevron-bottom.s
 import SearchIC from '../../../../public/res/ic/outlined/search.svg';
 import UserIC from '../../../../public/res/ic/outlined/user.svg';
 import VerticalMenuIC from '../../../../public/res/ic/outlined/vertical-menu.svg';
+import BackArrowIC from '../../../../public/res/ic/outlined/chevron-left.svg';
 
 import { useForceUpdate } from '../../hooks/useForceUpdate';
 
@@ -73,6 +74,13 @@ function RoomViewHeader({ roomId }) {
 
   return (
     <Header>
+      <div className="room-back-btn">
+        <IconButton
+          src={BackArrowIC}
+          tooltip="Return to navigation"
+          onClick={() => navigation.emit(cons.events.navigation.OPEN_NAVIGATION)}
+        />
+      </div>
       <button
         ref={roomHeaderBtnRef}
         className="room-header__btn"
@@ -87,7 +95,9 @@ function RoomViewHeader({ roomId }) {
         <RawIcon src={ChevronBottomIC} />
       </button>
       <IconButton onClick={() => toggleRoomSettings(tabText.SEARCH)} tooltip="Search" src={SearchIC} />
-      <IconButton onClick={togglePeopleDrawer} tooltip="People" src={UserIC} />
+      <div className="room-people-drawer-toggle">
+        <IconButton onClick={togglePeopleDrawer} tooltip="People" src={UserIC} />
+      </div>
       <IconButton
         onClick={openRoomOptions}
         tooltip="Options"

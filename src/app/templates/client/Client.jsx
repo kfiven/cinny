@@ -20,11 +20,33 @@ import initMatrix from '../../../client/initMatrix';
 import navigation from '../../../client/state/navigation';
 import cons from '../../../client/state/cons';
 
+const viewPossibilities = {
+  nav: 'navigation',
+  room: 'room',
+};
+
 function Client() {
   const [isLoading, changeLoading] = useState(true);
   const [loadingMsg, setLoadingMsg] = useState('Heating up');
   const [dragCounter, setDragCounter] = useState(0);
+  const [activeView, setActiveView] = useState(viewPossibilities.nav);
 
+  // #region Liston on events for compact screen sizes
+  const onRoomSelected = () => setActiveView(viewPossibilities.room);
+  const onNavigationSelected = () => setActiveView(viewPossibilities.nav);
+
+  useEffect(() => {
+    navigation.on(cons.events.navigation.ROOM_SELECTED, onRoomSelected);
+    navigation.on(cons.events.navigation.OPEN_NAVIGATION, onNavigationSelected);
+    // appDispatcher.register(cons.events.navigation.ROOM_SELECTED, () => setOnNavRoom(false));
+
+    return (() => {
+      navigation.removeListener(onRoomSelected);
+    });
+  }, []);
+  // #endregion
+
+  // #region Startup
   useEffect(() => {
     let counter = 0;
     const iId = setInterval(() => {
@@ -64,7 +86,9 @@ function Client() {
       </div>
     );
   }
+  // #endregion
 
+  // #region drag and drop
   function dragContainsFiles(e) {
     if (!e.dataTransfer.types) return false;
 
@@ -120,6 +144,7 @@ function Client() {
     initMatrix.roomsInput.setAttachment(roomId, file);
     initMatrix.roomsInput.emit(cons.events.roomsInput.ATTACHMENT_SET, file);
   }
+  // #endregion
 
   return (
     <div
@@ -129,10 +154,14 @@ function Client() {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      <div className="navigation__wrapper">
+      <div className={`navigation__wrapper
+        ${activeView !== viewPossibilities.nav ? 'non-focused-ui' : ''}`}
+      >
         <Navigation />
       </div>
-      <div className="room__wrapper">
+      <div className={`room__wrapper
+        ${activeView !== viewPossibilities.room ? 'non-focused-ui' : ''}`}
+      >
         <Room />
       </div>
       <Windows />
