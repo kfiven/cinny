@@ -53,12 +53,13 @@ module.exports = {
     new FaviconsWebpackPlugin({
       logo: './public/res/svg/cinny.svg',
       mode: 'webapp',
-      devMode: 'light',
+      devMode: 'webapp',
       favicons: {
         appName: 'Cinny',
         appDescription: 'Yet another matrix client',
         developerName: 'Ajay Bura',
         developerURL: 'https://github.com/ajbura',
+        theme_color: '#212427',
         icons: {
           coast: false,
           yandex: false,
@@ -69,6 +70,7 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         { from: 'olm.wasm' },
+        { from: 'sw.js' },
         { from: '_redirects' },
         { from: 'config.json' },
       ],

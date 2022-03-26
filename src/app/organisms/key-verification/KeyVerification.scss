@@ -1,0 +1,41 @@
+@use '../../partials/flex';
+@use '../../partials/dir';
+
+.key-verification__dialog {
+  & .dialog__content__wrapper {
+    position: relative;
+  }
+  & .dialog__content-container {
+    padding-top: var(--sp-normal);
+    padding-bottom: var(--sp-normal);
+    @include dir.side(padding, var(--sp-normal), var(--sp-extra-tight));
+  }
+}
+
+.key-verification {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-normal);
+
+  &__emojis {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: var(--sp-extra-tight);
+    flex-wrap: wrap;
+  }
+
+  &__emoji-block {
+    @extend .cp-fx__column;
+    flex: 1;
+    align-items: center;
+    gap: var(--sp-extra-tight);
+    white-space: nowrap;
+  }
+
+  &__buttons {
+    display: flex;
+    @extend ._e-c;
+    gap: var(--sp-normal);
+  }
+}

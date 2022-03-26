@@ -207,7 +207,7 @@ function Search() {
       size="small"
     >
       <div className="search-dialog">
-        <form className="search-dialog__input" onSubmit={(e) => { e.preventDefault(); openFirstResult()}}>
+        <form className="search-dialog__input" onSubmit={(e) => { e.preventDefault(); openFirstResult(); }}>
           <RawIcon src={SearchIC} size="small" />
           <Input
             onChange={handleOnChange}
@@ -217,7 +217,7 @@ function Search() {
           <IconButton size="small" src={CrossIC} type="reset" onClick={handleCross} tabIndex={-1} />
         </form>
         <div className="search-dialog__content-wrapper">
-          <ScrollView autoHide>
+          <ScrollView autoHide focusable={false}>
             <div className="search-dialog__content">
               { Array.isArray(result?.chunk) && result.chunk.map(renderRoomSelector) }
             </div>

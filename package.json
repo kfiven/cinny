@@ -27,10 +27,12 @@
     "flux": "^4.0.3",
     "formik": "^2.2.9",
     "html-react-parser": "^1.4.9",
+    "katex": "^0.15.2",
     "linkifyjs": "^2.1.9",
     "matrix-js-sdk": "^15.6.0",
     "micromark": "^3.0.10",
     "micromark-extension-gfm": "^2.0.1",
+    "micromark-extension-math": "^2.0.2",
     "micromark-util-chunked": "^1.0.0",
     "micromark-util-resolve-all": "^1.0.0",
     "micromark-util-symbol": "^1.0.1",
@@ -44,7 +46,8 @@
     "react-modal": "^3.14.4",
     "sanitize-html": "^2.7.0",
     "tippy.js": "^6.3.7",
-    "twemoji": "^14.0.1"
+    "twemoji": "^14.0.1",
+    "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
     "@babel/core": "^7.17.8",
