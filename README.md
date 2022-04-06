@@ -39,7 +39,7 @@ This repository includes a Dockerfile, which builds the application from source 
 use this locally, you can build the container like so:
 
 ```
-docker build -t cinny:latest .
+docker build -t cinny:latest . 
 ```
 
 You can then run the container you've built with a command similar to this:
