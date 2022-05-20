@@ -3,12 +3,14 @@ name: 'Deploy to Netlify (dev)'
 on:
   push:
     branches:
-       - dev
+       - test-tcb
 
 jobs:
   deploy-to-netlify:
     name: 'Deploy'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout repository
