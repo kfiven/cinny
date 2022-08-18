@@ -83,7 +83,7 @@ jobs:
         uses: docker/metadata-action@v4.0.1
         with:
           images: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/cinny
+            ${{ secrets.DOCKER_USERNAME }}/cinny
             ghcr.io/${{ github.repository }}
       - name: Build and push Docker image
         uses: docker/build-push-action@v3.1.1
