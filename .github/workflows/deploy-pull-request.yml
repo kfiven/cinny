@@ -59,7 +59,7 @@ jobs:
             console.log(`::set-output name=prnumber::${pr.number}`);
       - name: Deploy to Netlify
         id: netlify
-        uses: nwtgck/actions-netlify@b7c1504e00c6b8a249d1848cc1b522a4865eed99
+        uses: nwtgck/actions-netlify@890358d9a790ec9785f457098068495c164dbaea
         with:
           publish-dir: dist
           deploy-message: "Deploy from GitHub Actions"
