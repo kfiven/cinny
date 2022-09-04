@@ -5,5 +5,5 @@
   "lockFileMaintenance": { "enabled": true },
   "dependencyDashboard": true,
   "dependencyDashboardApproval": true,
-  "prHourlyLimit": 15
+  "prHourlyLimit": 30
 }
