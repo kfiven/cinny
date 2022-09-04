@@ -1,4 +1,5 @@
 name: NPM Lockfile Changes
+
 on:
   pull_request:
     types: ['opened', 'synchronize']
@@ -8,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     # Permission overwrite is required for Dependabot PRs, see "Common issues" below.
     permissions:
+      contents: read
       pull-requests: write
     steps:
       - name: Checkout
