@@ -49,9 +49,9 @@
     "twemoji": "^14.0.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.18.0",
-    "@babel/preset-env": "^7.18.0",
-    "@babel/preset-react": "^7.17.12",
+    "@babel/core": "7.18.13",
+    "@babel/preset-env": "7.18.10",
+    "@babel/preset-react": "7.18.6",
     "assert": "^2.0.0",
     "babel-loader": "^8.2.5",
     "browserify-fs": "^1.0.0",
