@@ -8,7 +8,7 @@ import TextareaAutosize from 'react-autosize-textarea';
 import initMatrix from '../../../client/initMatrix';
 import cons from '../../../client/state/cons';
 import settings from '../../../client/state/settings';
-import { openEmojiBoard } from '../../../client/action/navigation';
+import { openEmojiBoard, openReusableContextMenu } from '../../../client/action/navigation';
 import navigation from '../../../client/state/navigation';
 import { bytesToSize, getEventCords } from '../../../util/common';
 import { getUsername } from '../../../util/matrixUtil';
@@ -20,15 +20,21 @@ import IconButton from '../../atoms/button/IconButton';
 import ScrollView from '../../atoms/scroll/ScrollView';
 import { MessageReply } from '../../molecules/message/Message';
 
+import StickerBoard from '../sticker-board/StickerBoard';
+import { confirmDialog } from '../../molecules/confirm-dialog/ConfirmDialog';
+
 import CirclePlusIC from '../../../../public/res/ic/outlined/circle-plus.svg';
 import EmojiIC from '../../../../public/res/ic/outlined/emoji.svg';
 import SendIC from '../../../../public/res/ic/outlined/send.svg';
+import StickerIC from '../../../../public/res/ic/outlined/sticker.svg';
 import ShieldIC from '../../../../public/res/ic/outlined/shield.svg';
 import VLCIC from '../../../../public/res/ic/outlined/vlc.svg';
 import VolumeFullIC from '../../../../public/res/ic/outlined/volume-full.svg';
 import MarkdownIC from '../../../../public/res/ic/outlined/markdown.svg';
 import FileIC from '../../../../public/res/ic/outlined/file.svg';
 import CrossIC from '../../../../public/res/ic/outlined/cross.svg';
+
+import commands from './commands';
 
 const CMD_REGEX = /(^\/|:|@)(\S*)$/;
 let isTyping = false;
@@ -129,7 +135,9 @@ function RoomViewInput({
   function firedCmd(cmdData) {
     const msg = textAreaRef.current.value;
     textAreaRef.current.value = replaceCmdWith(
-      msg, cmdCursorPos, typeof cmdData?.replace !== 'undefined' ? cmdData.replace : '',
+      msg,
+      cmdCursorPos,
+      typeof cmdData?.replace !== 'undefined' ? cmdData.replace : '',
     );
     deactivateCmd();
   }
@@ -177,28 +185,56 @@ function RoomViewInput({
     };
   }, [roomId]);
 
-  const sendMessage = async () => {
-    requestAnimationFrame(() => deactivateCmdAndEmit());
-    const msgBody = textAreaRef.current.value;
+  const sendBody = async (body, msgType = 'm.text') => {
     if (roomsInput.isSending(roomId)) return;
-    if (msgBody.trim() === '' && attachment === null) return;
     sendIsTyping(false);
 
-    roomsInput.setMessage(roomId, msgBody);
+    roomsInput.setMessage(roomId, body);
     if (attachment !== null) {
       roomsInput.setAttachment(roomId, attachment);
     }
     textAreaRef.current.disabled = true;
     textAreaRef.current.style.cursor = 'not-allowed';
-    await roomsInput.sendInput(roomId);
+    await roomsInput.sendInput(roomId, msgType);
     textAreaRef.current.disabled = false;
     textAreaRef.current.style.cursor = 'unset';
     focusInput();
 
     textAreaRef.current.value = roomsInput.getMessage(roomId);
-    viewEvent.emit('message_sent');
     textAreaRef.current.style.height = 'unset';
     if (replyTo !== null) setReplyTo(null);
+  };
+
+  const processCommand = (cmdBody) => {
+    const spaceIndex = cmdBody.indexOf(' ');
+    const cmdName = cmdBody.slice(1, spaceIndex > -1 ? spaceIndex : undefined);
+    const cmdData = spaceIndex > -1 ? cmdBody.slice(spaceIndex + 1) : '';
+    if (!commands[cmdName]) {
+      confirmDialog('Invalid Command', `"${cmdName}" is not a valid command.`, 'Alright');
+      return;
+    }
+    if (['me', 'shrug'].includes(cmdName)) {
+      commands[cmdName].exe(roomId, cmdData, (message, msgType) => sendBody(message, msgType));
+      return;
+    }
+    commands[cmdName].exe(roomId, cmdData);
+  };
+
+  const sendMessage = async () => {
+    requestAnimationFrame(() => deactivateCmdAndEmit());
+    const msgBody = textAreaRef.current.value.trim();
+    if (msgBody.startsWith('/')) {
+      processCommand(msgBody.trim());
+      textAreaRef.current.value = '';
+      textAreaRef.current.style.height = 'unset';
+      return;
+    }
+    if (msgBody === '' && attachment === null) return;
+    sendBody(msgBody, 'm.text');
+  };
+
+  const handleSendSticker = async (data) => {
+    roomsInput.sendSticker(roomId, data);
   };
 
   function processTyping(msg) {
@@ -254,7 +290,12 @@ function RoomViewInput({
   };
 
   const handleKeyDown = (e) => {
-    if (e.keyCode === 13 && e.shiftKey === false) {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      roomsInput.cancelReplyTo(roomId);
+      setReplyTo(null);
+    }
+    if (e.key === 'Enter' && e.shiftKey === false) {
       e.preventDefault();
       sendMessage();
     }
@@ -328,6 +369,7 @@ function RoomViewInput({
           <ScrollView autoHide>
             <Text className="room-input__textarea-wrapper">
               <TextareaAutosize
+                dir="auto"
                 id="message-textarea"
                 ref={textAreaRef}
                 onChange={handleMsgTyping}
@@ -340,6 +382,29 @@ function RoomViewInput({
           {isMarkdown && <RawIcon size="extra-small" src={MarkdownIC} />}
         </div>
         <div ref={rightOptionsRef} className="room-input__option-container">
+          <IconButton
+            onClick={(e) => {
+              openReusableContextMenu(
+                'top',
+                (() => {
+                  const cords = getEventCords(e);
+                  cords.y -= 20;
+                  return cords;
+                })(),
+                (closeMenu) => (
+                  <StickerBoard
+                    roomId={roomId}
+                    onSelect={(data) => {
+                      handleSendSticker(data);
+                      closeMenu();
+                    }}
+                  />
+                ),
+              );
+            }}
+            tooltip="Sticker"
+            src={StickerIC}
+          />
           <IconButton
             onClick={(e) => {
               const cords = getEventCords(e);
@@ -388,6 +453,7 @@ function RoomViewInput({
         />
         <MessageReply
           userId={replyTo.userId}
+          onKeyDown={handleKeyDown}
           name={getUsername(replyTo.userId)}
           color={colorMXID(replyTo.userId)}
           body={replyTo.body}

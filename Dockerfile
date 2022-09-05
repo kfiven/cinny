@@ -3,14 +3,14 @@ FROM node:17.9.0-alpine3.15 as builder
 
 WORKDIR /src
 
-COPY package.json package-lock.json /src/
-RUN npm ci --no-audit --prefer-offline
+COPY .npmrc package.json package-lock.json /src/
+RUN npm ci
 COPY . /src/
 RUN npm run build
 
 
 ## App
-FROM nginx:1.21.6-alpine
+FROM nginx:1.23.1-alpine
 
 COPY --from=builder /src/dist /app
 

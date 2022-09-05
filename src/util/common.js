@@ -115,6 +115,16 @@ export function avatarInitials(text) {
   return [...text][0];
 }
 
+export function cssVar(name) {
+  return getComputedStyle(document.body).getPropertyValue(name);
+}
+
+export function setFavicon(url) {
+  const favicon = document.querySelector('#favicon');
+  if (!favicon) return;
+  favicon.setAttribute('href', url);
+}
+
 export function copyToClipboard(text) {
   if (navigator.clipboard) {
     navigator.clipboard.writeText(text);
@@ -131,4 +141,66 @@ export function copyToClipboard(text) {
     document.execCommand('Copy');
     copyInput.remove();
   }
+}
+
+export function suffixRename(name, validator) {
+  let suffix = 2;
+  let newName = name;
+  do {
+    newName = name + suffix;
+    suffix += 1;
+  } while (validator(newName));
+
+  return newName;
+}
+
+export function getImageDimension(file) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = async () => {
+      resolve({
+        w: img.width,
+        h: img.height,
+      });
+      URL.revokeObjectURL(img.src);
+    };
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+export function scaleDownImage(imageFile, width, height) {
+  return new Promise((resolve) => {
+    const imgURL = URL.createObjectURL(imageFile);
+    const img = new Image();
+
+    img.onload = () => {
+      let newWidth = img.width;
+      let newHeight = img.height;
+      if (newHeight <= height && newWidth <= width) {
+        resolve(imageFile);
+      }
+
+      if (newHeight > height) {
+        newWidth = Math.floor(newWidth * (height / newHeight));
+        newHeight = height;
+      }
+      if (newWidth > width) {
+        newHeight = Math.floor(newHeight * (width / newWidth));
+        newWidth = width;
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = newWidth;
+      canvas.height = newHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, newWidth, newHeight);
+
+      canvas.toBlob((thumbnail) => {
+        URL.revokeObjectURL(imgURL);
+        resolve(thumbnail);
+      }, imageFile.type);
+    };
+
+    img.src = imgURL;
+  });
 }

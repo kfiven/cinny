@@ -5,6 +5,11 @@ import { selectRoom } from '../action/navigation';
 import cons from './cons';
 import navigation from './navigation';
 import settings from './settings';
+import { setFavicon } from '../../util/common';
+
+import LogoSVG from '../../../public/res/svg/cinny.svg';
+import LogoUnreadSVG from '../../../public/res/svg/cinny-unread.svg';
+import LogoHighlightSVG from '../../../public/res/svg/cinny-highlight.svg';
 
 function isNotifEvent(mEvent) {
   const eType = mEvent.getType();
@@ -32,22 +37,24 @@ class Notifications extends EventEmitter {
   constructor(roomList) {
     super();
 
+    this.initialized = false;
+    this.favicon = LogoSVG;
     this.matrixClient = roomList.matrixClient;
     this.roomList = roomList;
 
     this.roomIdToNoti = new Map();
 
-    this._initNoti();
+    // this._initNoti();
     this._listenEvents();
 
     // Ask for permission by default after loading
     window.Notification?.requestPermission();
-
-    // TODO:
-    window.notifications = this;
   }
 
-  _initNoti() {
+  async _initNoti() {
+    this.initialized = false;
+    this.roomIdToNoti = new Map();
+
     const addNoti = (roomId) => {
       const room = this.matrixClient.getRoom(roomId);
       if (this.getNotiType(room.roomId) === cons.notifs.MUTE) return;
@@ -59,6 +66,9 @@ class Notifications extends EventEmitter {
     };
     [...this.roomList.rooms].forEach(addNoti);
     [...this.roomList.directs].forEach(addNoti);
+
+    this.initialized = true;
+    this._updateFavicon();
   }
 
   doesRoomHaveUnread(room) {
@@ -104,7 +114,8 @@ class Notifications extends EventEmitter {
   }
 
   getTotalNoti(roomId) {
-    const { total } = this.getNoti(roomId);
+    const { total, highlight } = this.getNoti(roomId);
+    if (highlight > total) return highlight;
     return total;
   }
 
@@ -127,6 +138,30 @@ class Notifications extends EventEmitter {
       const noti = this.getNoti(roomId);
       this._deleteNoti(roomId, noti.total, noti.highlight);
     }
+  }
+
+  async _updateFavicon() {
+    if (!this.initialized) return;
+    let unread = false;
+    let highlight = false;
+    [...this.roomIdToNoti.values()].find((noti) => {
+      if (!unread) {
+        unread = noti.total > 0 || noti.highlight > 0;
+      }
+      highlight = noti.highlight > 0;
+      if (unread && highlight) return true;
+      return false;
+    });
+    let newFavicon = LogoSVG;
+    if (unread && !highlight) {
+      newFavicon = LogoUnreadSVG;
+    }
+    if (unread && highlight) {
+      newFavicon = LogoHighlightSVG;
+    }
+    if (newFavicon === this.favicon) return;
+    this.favicon = newFavicon;
+    setFavicon(this.favicon);
   }
 
   _setNoti(roomId, total, highlight) {
@@ -155,6 +190,7 @@ class Notifications extends EventEmitter {
     allParentSpaces.forEach((spaceId) => {
       addNoti(spaceId, addT, addH, roomId);
     });
+    this._updateFavicon();
   }
 
   _deleteNoti(roomId, total, highlight) {
@@ -187,6 +223,7 @@ class Notifications extends EventEmitter {
     allParentSpaces.forEach((spaceId) => {
       removeNoti(spaceId, total, highlight, roomId);
     });
+    this._updateFavicon();
   }
 
   async _displayPopupNoti(mEvent, room) {

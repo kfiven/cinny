@@ -8,12 +8,19 @@ import AccountData from './state/AccountData';
 import RoomsInput from './state/RoomsInput';
 import Notifications from './state/Notifications';
 import { cryptoCallbacks } from './state/secretStorageKeys';
+import navigation from './state/navigation';
 
 global.Olm = require('@matrix-org/olm');
 
 // logger.disableAll();
 
 class InitMatrix extends EventEmitter {
+  constructor() {
+    super();
+
+    navigation.initMatrix = this;
+  }
+
   async init() {
     await this.startClient();
     this.setupSync();
@@ -33,7 +40,6 @@ class InitMatrix extends EventEmitter {
       accessToken: secret.accessToken,
       userId: secret.userId,
       store: indexedDBStore,
-      sessionStore: new sdk.WebStorageSessionStore(global.localStorage),
       cryptoStore: new sdk.IndexedDBCryptoStore(global.indexedDB, 'crypto-store'),
       deviceId: secret.deviceId,
       timelineSupport: true,
@@ -61,15 +67,18 @@ class InitMatrix extends EventEmitter {
       },
       PREPARED: (prevState) => {
         console.log('PREPARED state');
-        console.log('previous state: ', prevState);
+        console.log('Previous state: ', prevState);
         // TODO: remove global.initMatrix at end
         global.initMatrix = this;
         if (prevState === null) {
           this.roomList = new RoomList(this.matrixClient);
           this.accountData = new AccountData(this.roomList);
-          this.roomsInput = new RoomsInput(this.matrixClient);
+          this.roomsInput = new RoomsInput(this.matrixClient, this.roomList);
           this.notifications = new Notifications(this.roomList);
           this.emit('init_loading_finished');
+          this.notifications._initNoti();
+        } else {
+          this.notifications._initNoti();
         }
       },
       RECONNECTING: () => {
