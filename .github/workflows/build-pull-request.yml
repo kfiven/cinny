@@ -7,8 +7,8 @@ on:
 jobs:
   build-pull-request:
     runs-on: ubuntu-latest
-#     env:
-#       PR_NUMBER: ${{github.event.number}}
+    env:
+      PR_NUMBER: ${{github.event.number}}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3.0.2
@@ -17,60 +17,23 @@ jobs:
         with:
           node-version: 17.9.0
           cache: 'npm'
-      - name: Install dependencies
-        run: npm ci
       - name: Build app
-        run: npm run build
-        
-      - id: prdetails
-        uses: matrix-org/pr-details-action@v1.1
+        run: npm ci && npm run build
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3.1.0
         with:
-          owner: ${{ github.event.workflow_run.head_repository.owner.login }}
-          branch: ${{ github.event.workflow_run.head_branch }}
-
-      - name: Deploy Preview to Netlify
-        id: netlify
-        uses: nwtgck/actions-netlify@v1.2
+          name: previewbuild
+          path: dist
+          retention-days: 1
+      - name: Get PR info
+        uses: actions/github-script@v6.2.0
         with:
-          publish-dir: dist
-          deploy-message: "PR deploy from GitHub Actions"
-          alias: ${{ github.event.number }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          enable-pull-request-comment: false
-          overwrites-pull-request-comment: false
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE3_ID }}
-        timeout-minutes: 1
-
-      - name: Edit PR Description
-        uses: Beakyn/gha-comment-pull-request@2167a7aee24f9e61ce76a23039f322e49a990409
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            var fs = require('fs');
+            fs.writeFileSync('${{github.workspace}}/pr.json', JSON.stringify(context.payload.pull_request));
+      - name: Upload PR Info
+        uses: actions/upload-artifact@v3.1.0
         with:
-          pull-request-number: ${{ github.event.number }}
-          description-message: |
-              Preview: ${{ steps.netlify.outputs.deploy-url }}
-              ⚠️ Exercise caution. Use test accounts. ⚠️      
-        
-        
-#       - name: Build app
-#         run: npm ci && npm run build
-#       - name: Upload artifact
-#         uses: actions/upload-artifact@v3.1.0
-#         with:
-#           name: previewbuild
-#           path: dist
-#           retention-days: 1
-#       - name: Get PR info
-#         uses: actions/github-script@v6.2.0
-#         with:
-#           script: |
-#             var fs = require('fs');
-#             fs.writeFileSync('${{github.workspace}}/pr.json', JSON.stringify(context.payload.pull_request));
-#       - name: Upload PR Info
-#         uses: actions/upload-artifact@v3.1.0
-#         with:
-#           name: pr.json
-#           path: pr.json
-#           retention-days: 1
+          name: pr.json
+          path: pr.json
+          retention-days: 1
