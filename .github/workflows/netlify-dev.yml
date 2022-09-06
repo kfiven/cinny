@@ -30,6 +30,7 @@ jobs:
         with:
           publish-dir: dist
           deploy-message: "Dev deploy from GitHub Actions"
+          enable-commit-comment: false
           github-token: ${{ secrets.GITHUB_TOKEN }}
           production-deploy: true
         env:
