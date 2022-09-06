@@ -2,7 +2,7 @@ name: 'Build pull request'
 
 on:
   pull_request:
-    types: ['opened', 'synchronize']
+    types: ['opened', 'synchronize', 'edited']
 
 jobs:
   build-pull-request:
@@ -21,15 +21,7 @@ jobs:
         run: npm ci
       - name: Build app
         run: npm run build
-
-      - name: Create Deployment
-        uses: bobheadxi/deployments@v1
-        id: deployment
-        with:
-          step: start
-          token: ${{ secrets.GITHUB_TOKEN }}
-          env: Netlify
-          ref: ${{ github.event.workflow_run.head_sha }}
+        
       - id: prdetails
         uses: matrix-org/pr-details-action@v1.1
         with:
@@ -42,26 +34,24 @@ jobs:
         with:
           publish-dir: dist
           deploy-message: "PR deploy from GitHub Actions"
-          alias: deploy-preview-${{ github.event.number }}
+          alias: ${{ github.event.number }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          enable-pull-request-comment: true
-          overwrites-pull-request-comment: true
+          enable-pull-request-comment: false
+          overwrites-pull-request-comment: false
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE3_ID }}
         timeout-minutes: 1
 
-      - name: Update deployment status
-        uses: bobheadxi/deployments@v1
-        if: always()
+      - name: Edit PR Description
+        uses: Beakyn/gha-comment-pull-request@2167a7aee24f9e61ce76a23039f322e49a990409
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          step: finish
-          override: false
-          token: ${{ secrets.GITHUB_TOKEN }}
-          status: ${{ job.status }}
-          env: ${{ steps.deployment.outputs.env }}
-          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
-          env_url: ${{ steps.netlify.outputs.deploy-url }}        
+          pull-request-number: ${{ github.event.number }}
+          description-message: |
+              Preview: ${{ steps.netlify.outputs.deploy-url }}
+              ⚠️ Exercise caution. Use test accounts. ⚠️      
         
         
 #       - name: Build app
