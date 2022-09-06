@@ -7,8 +7,8 @@ on:
 jobs:
   build-pull-request:
     runs-on: ubuntu-latest
-    env:
-      PR_NUMBER: ${{github.event.number}}
+#     env:
+#       PR_NUMBER: ${{github.event.number}}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3.0.2
@@ -16,23 +16,71 @@ jobs:
         uses: actions/setup-node@v3.4.1
         with:
           node-version: 17.9.0
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
       - name: Build app
-        run: npm ci && npm run build
-      - name: Upload artifact
-        uses: actions/upload-artifact@v3.1.0
+        run: npm run build
+
+      - name: Create Deployment
+        uses: bobheadxi/deployments@v1
+        id: deployment
         with:
-          name: previewbuild
-          path: dist
-          retention-days: 1
-      - name: Get PR info
-        uses: actions/github-script@v6.2.0
+          step: start
+          token: ${{ secrets.GITHUB_TOKEN }}
+          env: Netlify
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - id: prdetails
+        uses: matrix-org/pr-details-action@v1.1
         with:
-          script: |
-            var fs = require('fs');
-            fs.writeFileSync('${{github.workspace}}/pr.json', JSON.stringify(context.payload.pull_request));
-      - name: Upload PR Info
-        uses: actions/upload-artifact@v3.1.0
+          owner: ${{ github.event.workflow_run.head_repository.owner.login }}
+          branch: ${{ github.event.workflow_run.head_branch }}
+
+      - name: Deploy Preview to Netlify
+        id: netlify
+        uses: nwtgck/actions-netlify@v1.2
         with:
-          name: pr.json
-          path: pr.json
-          retention-days: 1
+          publish-dir: dist
+          deploy-message: "PR deploy from GitHub Actions"
+          alias: deploy-preview-${{ github.event.number }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          enable-pull-request-comment: true
+          overwrites-pull-request-comment: true
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE3_ID }}
+        timeout-minutes: 1
+
+      - name: Update deployment status
+        uses: bobheadxi/deployments@v1
+        if: always()
+        with:
+          step: finish
+          override: false
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          env: ${{ steps.deployment.outputs.env }}
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+          env_url: ${{ steps.netlify.outputs.deploy-url }}        
+        
+        
+#       - name: Build app
+#         run: npm ci && npm run build
+#       - name: Upload artifact
+#         uses: actions/upload-artifact@v3.1.0
+#         with:
+#           name: previewbuild
+#           path: dist
+#           retention-days: 1
+#       - name: Get PR info
+#         uses: actions/github-script@v6.2.0
+#         with:
+#           script: |
+#             var fs = require('fs');
+#             fs.writeFileSync('${{github.workspace}}/pr.json', JSON.stringify(context.payload.pull_request));
+#       - name: Upload PR Info
+#         uses: actions/upload-artifact@v3.1.0
+#         with:
+#           name: pr.json
+#           path: pr.json
+#           retention-days: 1
