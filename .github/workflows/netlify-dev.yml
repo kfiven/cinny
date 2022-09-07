@@ -6,7 +6,7 @@ on:
        - test-tcb
 
 jobs:
-  deploy-to-netlify:
+  deploy_to_netlify:
     name: 'Deploy'
     runs-on: ubuntu-latest
 #     permissions:
@@ -25,10 +25,10 @@ jobs:
       - name: Build app
         run: npm run build
       - name: Deploy to Netlify
-        uses: nwtgck/actions-netlify@v1.2
+        uses: nwtgck/actions-netlify@b7c1504e00c6b8a249d1848cc1b522a4865eed99
         with:
           publish-dir: dist
-          deploy-message: "Dev deploy from GitHub Actions"
+          deploy-message: "Dev deploy ${{ github.sha }}"
           enable-commit-comment: false
           github-token: ${{ secrets.GITHUB_TOKEN }}
           production-deploy: true

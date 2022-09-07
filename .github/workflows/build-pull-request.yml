@@ -5,7 +5,7 @@ on:
     types: ['opened', 'synchronize', 'edited']
 
 jobs:
-  build-pull-request:
+  build_pull_request:
     runs-on: ubuntu-latest
     env:
       PR_NUMBER: ${{github.event.number}}
@@ -17,8 +17,10 @@ jobs:
         with:
           node-version: 17.9.0
           cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
       - name: Build app
-        run: npm ci && npm run build
+        run: npm run build
       - name: Upload artifact
         uses: actions/upload-artifact@v3.1.0
         with:

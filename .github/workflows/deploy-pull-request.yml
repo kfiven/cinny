@@ -5,7 +5,7 @@ on:
       types:
         - completed
 jobs:
-  get-build-and-deploy:
+  get_build_and_deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -13,7 +13,7 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Download pr number
-        uses: dawidd6/action-download-artifact@v2
+        uses: dawidd6/action-download-artifact@7847792dd435a50521b8e3bd3576dae7459d1fa8
         with:
           workflow: ${{ github.event.workflow.id }}
           run_id: ${{ github.event.workflow_run.id }}
@@ -24,7 +24,7 @@ jobs:
         run: echo "::set-output name=id::$(<pr.txt)"
 
       - name: Download artifact
-        uses: dawidd6/action-download-artifact@v2
+        uses: dawidd6/action-download-artifact@7847792dd435a50521b8e3bd3576dae7459d1fa8
         with:
           workflow: ${{ github.event.workflow.id }}
           run_id: ${{ github.event.workflow_run.id }}
@@ -35,7 +35,7 @@ jobs:
         uses: nwtgck/actions-netlify@b7c1504e00c6b8a249d1848cc1b522a4865eed99
         with:
           publish-dir: dist
-          deploy-message: "Deploy from GitHub Actions"
+          deploy-message: "Deploy PR${{ steps.pr.outputs.id }}"
           alias: ${{ steps.pr.outputs.id }}
           # These don't work because we're in workflow_run
           enable-pull-request-comment: false
