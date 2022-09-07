@@ -33,7 +33,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           production-deploy: true
           github-deployment-environment: nightly
-          github-deployment-environment: 'Nightly deployment on each commit to dev branch'
+          github-deployment-description: 'Nightly deployment on each commit to dev branch'
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE3_ID }}
