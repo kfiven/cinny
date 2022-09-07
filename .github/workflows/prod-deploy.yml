@@ -56,28 +56,6 @@ jobs:
             cinny-${{ steps.vars.outputs.tag }}.tar.gz
             cinny-${{ steps.vars.outputs.tag }}.tar.gz.asc
 
-  # deploy-to-netlify:
-  #   name: 'Deploy to Netlify'
-  #   runs-on: ubuntu-latest
-  #   permissions:
-  #     contents: read
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v3.0.2
-  #     - name: Setup node
-  #       uses: actions/setup-node@v3.4.1
-  #       with:
-  #         node-version: 17.9.0
-  #     - name: Build and deploy to Netlify
-  #       uses: jsmrcaga/action-netlify-deploy@fb6a5f936a4b06a8f7793e69fc5a022ffe39807a
-  #       with:
-  #         install_command: "npm ci"
-  #         NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-  #         NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE3_ID }}
-  #         BUILD_DIRECTORY: "dist"
-  #         NETLIFY_DEPLOY_MESSAGE: "Prod deploy v${{ github.ref }}"
-  #         NETLIFY_DEPLOY_TO_PROD: true
-
   publish-image:
     name: Push Docker image to Docker Hub, ghcr
     runs-on: ubuntu-latest
@@ -91,21 +69,11 @@ jobs:
         uses: docker/setup-qemu-action@v2.0.0
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2.0.0
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2.0.0
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2.0.0
       - name: Login to Docker Hub
         uses: docker/login-action@v2.0.0
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Login to the Container registry
-        uses: docker/login-action@v2.0.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
       - name: Login to the Container registry
         uses: docker/login-action@v2.0.0
         with:

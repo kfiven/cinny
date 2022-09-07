@@ -9,7 +9,6 @@ jobs:
   deploy-to-netlify:
     name: 'Deploy to Netlify'
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3.0.2
@@ -36,14 +35,3 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE3_ID }}
         timeout-minutes: 1
-
-          
-#       - name: Build and deploy to Netlify
-#         uses: jsmrcaga/action-netlify-deploy@53de32e559b0b3833615b9788c7a090cd2fddb03
-#         with:
-#           install_command: "npm ci"
-#           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-#           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE3_ID }}
-#           BUILD_DIRECTORY: "dist"
-#           NETLIFY_DEPLOY_MESSAGE: "Dev deploy v${{ github.ref }}"
-#           NETLIFY_DEPLOY_TO_PROD: true
