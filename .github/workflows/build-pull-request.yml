@@ -5,7 +5,8 @@ on:
     types: ['opened', 'synchronize', 'edited']
 
 jobs:
-  build_pull_request:
+  build-pull-request:
+    name: 'Build pull request'
     runs-on: ubuntu-latest
     env:
       PR_NUMBER: ${{github.event.number}}

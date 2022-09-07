@@ -1,11 +1,12 @@
-name: Upload Preview Build to Netlify
+name: 'Deploy PR to Netlify'
 on:
   workflow_run:
       workflows: ["Build pull request"]
       types:
         - completed
 jobs:
-  get_build_and_deploy:
+  deploy-pull-request:
+    name: 'Deploy pull request'
     runs-on: ubuntu-latest
     permissions:
       contents: read

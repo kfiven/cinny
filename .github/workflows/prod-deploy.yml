@@ -5,7 +5,7 @@ on:
     types: [published]
 
 jobs:
-  deploy_and_tarball:
+  deploy-and-tarball:
     name: 'Netlify deploy and tarball'
     runs-on: ubuntu-latest
     steps:
@@ -28,6 +28,8 @@ jobs:
           enable-commit-comment: false
           github-token: ${{ secrets.GITHUB_TOKEN }}
           production-deploy: true
+          github-deployment-environment: stable
+          github-deployment-environment: 'Stable deployment on each release'
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE3_ID }}
@@ -76,7 +78,7 @@ jobs:
   #         NETLIFY_DEPLOY_MESSAGE: "Prod deploy v${{ github.ref }}"
   #         NETLIFY_DEPLOY_TO_PROD: true
 
-  publish_image:
+  publish-image:
     name: Push Docker image to Docker Hub, ghcr
     runs-on: ubuntu-latest
     permissions:

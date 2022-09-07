@@ -6,7 +6,7 @@ on:
        - test-tcb
 
 jobs:
-  deploy_to_netlify:
+  deploy-to-netlify:
     name: 'Deploy to Netlify'
     runs-on: ubuntu-latest
 #     permissions:
@@ -32,6 +32,8 @@ jobs:
           enable-commit-comment: false
           github-token: ${{ secrets.GITHUB_TOKEN }}
           production-deploy: true
+          github-deployment-environment: nightly
+          github-deployment-environment: 'Nightly deployment on each commit to dev branch'
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE3_ID }}
