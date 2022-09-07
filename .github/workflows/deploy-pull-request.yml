@@ -35,7 +35,7 @@ jobs:
         uses: nwtgck/actions-netlify@b7c1504e00c6b8a249d1848cc1b522a4865eed99
         with:
           publish-dir: dist
-          deploy-message: "Deploy PR${{ steps.pr.outputs.id }}"
+          deploy-message: "Deploy PR ${{ steps.pr.outputs.id }}"
           alias: ${{ steps.pr.outputs.id }}
           # These don't work because we're in workflow_run
           enable-pull-request-comment: false

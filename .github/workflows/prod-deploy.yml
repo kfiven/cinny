@@ -24,7 +24,7 @@ jobs:
         uses: nwtgck/actions-netlify@b7c1504e00c6b8a249d1848cc1b522a4865eed99
         with:
           publish-dir: dist
-          deploy-message: "Prod deploy v${{ github.ref_name }}"
+          deploy-message: "Prod deploy ${{ github.ref_name }}"
           enable-commit-comment: false
           github-token: ${{ secrets.GITHUB_TOKEN }}
           production-deploy: true
