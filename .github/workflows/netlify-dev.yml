@@ -9,8 +9,9 @@ jobs:
   deploy-to-netlify:
     name: 'Deploy to Netlify'
     runs-on: ubuntu-latest
-#     permissions:
-#       contents: read
+    permissions:
+      contents: read
+      deployments: write
 
     steps:
       - name: Checkout repository
