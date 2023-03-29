@@ -6,7 +6,7 @@ WORKDIR /src
 COPY .npmrc package.json package-lock.json /src/
 RUN npm ci
 COPY . /src/
-RUN NODE_OPTIONS=--max_old_space_size=8196
+RUN NODE_OPTIONS=--max_old_space_size=4096
 RUN npm run build
 
 
