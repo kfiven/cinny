@@ -1,9 +1,9 @@
-name: Deploy to Netlify (dev)
+name: Dev branch deploy
 
 on:
   push:
     branches:
-       - dev
+      - dev
 
 jobs:
   deploy-to-netlify:
@@ -11,23 +11,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3.2.0
+        uses: actions/checkout@v4.1.7
       - name: Setup node
-        uses: actions/setup-node@v3.5.1
+        uses: actions/setup-node@v4.0.2
         with:
-          node-version: 18.12.1
-          cache: "npm"
+          node-version: 20.12.2
+          cache: 'npm'
       - name: Install dependencies
         run: npm ci
       - name: Build app
         env:
-          NODE_OPTIONS: "--max_old_space_size=4096"
+          NODE_OPTIONS: '--max_old_space_size=4096'
         run: npm run build
       - name: Deploy to Netlify
-        uses: nwtgck/actions-netlify@5da65c9f74c7961c5501a3ba329b8d0912f39c03
+        uses: nwtgck/actions-netlify@4cbaf4c08f1a7bfa537d6113472ef4424e4eb654
         with:
           publish-dir: dist
-          deploy-message: "Dev deploy ${{ github.sha }}"
+          deploy-message: 'Dev deploy ${{ github.sha }}'
           enable-commit-comment: false
           github-token: ${{ secrets.GITHUB_TOKEN }}
           production-deploy: true
@@ -37,3 +37,76 @@ jobs:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID_DEV }}
         timeout-minutes: 1
+
+  check-interval:
+    name: Check time interval for publishing Docker image
+    runs-on: ubuntu-latest
+    outputs: 
+      pass: ${{ steps.check.outputs.pass }}
+    steps:
+      - name: Get image timestamp
+        run: |
+          last_publish_time='@0'
+          response=$(curl -s -H "Authorization: Bearer ${{ secrets.DOCKER_PASSWORD }}" \
+            -w %{http_code} -o manifest.json \
+            "https://hub.docker.com/v2/repositories/ajbura/cinny/tags/dev/")
+          if [ "$response" -eq 200 ]; then
+            last_publish_time=$(jq -r '.tag_last_pushed' manifest.json)
+          fi
+          echo "LAST_PUBLISH_TIME=$last_publish_time" >> $GITHUB_ENV
+      - name: Calculate time difference
+        id: check
+        run: |
+          current_time=$(date +%s)
+          last_publish_time=$(date -d "$LAST_PUBLISH_TIME" +%s 2>/dev/null || echo 0)
+          interval=$((current_time - last_publish_time))
+          if [ "$interval" -gt $((7 * 24 * 60 * 60)) ]; then
+          echo "pass=true" >> $GITHUB_OUTPUT
+          else
+          echo "pass=false" >> $GITHUB_OUTPUT
+          fi
+
+  publish-image:
+    name: Push Docker image to Docker Hub, ghcr
+    needs: check-interval
+    if: ${{ needs.check-interval.outputs.pass == 'true' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4.1.7
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3.0.0
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3.3.0
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3.2.0
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Login to the Container registry
+        uses: docker/login-action@v3.2.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5.5.1
+        with:
+          images: |
+            ${{ secrets.DOCKER_USERNAME }}/cinny
+            ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6.0.0
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
