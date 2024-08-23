@@ -49,7 +49,7 @@ jobs:
           last_publish_time='@0'
           response=$(curl -s -H \
             -w %{http_code} -o manifest.json \
-            "https://hub.docker.com/v2/repositories/kfiven/cinny/tags/dev/")
+            "https://hub.docker.com/v2/repositories/kfiven/cinny/tags/test-tcb/")
           if [ "$response" -eq 200 ]; then
             last_publish_time=$(jq -r '.tag_last_pushed' manifest.json)
           fi
