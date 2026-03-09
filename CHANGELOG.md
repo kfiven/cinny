@@ -1,3 +1,10 @@
+## [4.10.6](https://github.com/kfiven/cinny/compare/v4.10.5...v4.10.6) (2026-03-09)
+
+
+### Bug Fixes
+
+* fix that bug which is this bug ([204bc54](https://github.com/kfiven/cinny/commit/204bc54f6170dbe7fee9d1288bc508fa8e0087b5))
+
 # [1.6.0](https://github.com/kfiven/cinny/compare/v1.5.1...v1.6.0) (2026-03-09)
 
 
