@@ -31,7 +31,7 @@
   },
   "release": {
     "branches": [
-      "dev"
+      "dev-alt"
     ],
     "plugins": [
       "@semantic-release/commit-analyzer",
