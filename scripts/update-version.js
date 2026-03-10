@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { execSync } from "child_process";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -12,8 +13,22 @@ if (!version) {
   process.exit(1);
 }
 
-const newVersion = `v${version}`;
+const root = path.resolve(__dirname, "..");
+const newVersionTag = `v${version}`;
 
+//
+// Update package.json + package-lock.json safely
+//
+execSync(`npm version ${version} --no-git-tag-version`, {
+  cwd: root,
+  stdio: "inherit",
+});
+
+console.log(`Updated package.json and package-lock.json → ${version}`);
+
+//
+// Update UI version references
+//
 const files = [
   "src/app/features/settings/about/About.tsx",
   "src/app/pages/auth/AuthFooter.tsx",
@@ -21,7 +36,7 @@ const files = [
 ];
 
 files.forEach((filePath) => {
-  const absPath = path.resolve(__dirname, "..", filePath);
+  const absPath = path.join(root, filePath);
 
   if (!fs.existsSync(absPath)) {
     console.warn(`File not found: ${filePath}`);
@@ -29,10 +44,9 @@ files.forEach((filePath) => {
   }
 
   const content = fs.readFileSync(absPath, "utf8");
-
-  const updated = content.replace(/v\d+\.\d+\.\d+/g, newVersion);
+  const updated = content.replace(/v\d+\.\d+\.\d+/g, newVersionTag);
 
   fs.writeFileSync(absPath, updated);
 
-  console.log(`Updated ${filePath} → ${newVersion}`);
+  console.log(`Updated ${filePath} → ${newVersionTag}`);
 });
