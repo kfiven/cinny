@@ -25,6 +25,10 @@ jobs:
         run: npm run semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_AUTOR_NAME: "kfiven"
+          GIT_AUTOR_EMAIL: "33421343+kfiven@users.noreply.github.com"
+          GIT_COMMITTER_NAME: "kfiven"
+          GIT_COMMITTER_EMAIL: "33421343+kfiven@users.noreply.github.com"
         continue-on-error: true
       - name: Get version from tag
         id: vars
