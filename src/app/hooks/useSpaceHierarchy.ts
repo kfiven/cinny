@@ -1,3 +1,8 @@
+// Cinny Project
+// Copyright (c) 2021-2026 Ajay Bura
+// SPDX-License-Identifier: AGPL-3.0-only
+// https://cinny.in
+
 import { atom, useAtom, useAtomValue } from 'jotai';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { MatrixError, Room } from 'matrix-js-sdk';

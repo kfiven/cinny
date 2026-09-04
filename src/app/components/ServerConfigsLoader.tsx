@@ -1,3 +1,8 @@
+// Cinny Project
+// Copyright (c) 2021-2026 Ajay Bura
+// SPDX-License-Identifier: AGPL-3.0-only
+// https://cinny.in
+
 import { ReactNode, useCallback, useMemo } from 'react';
 import { Capabilities, validateAuthMetadata, ValidatedAuthMetadata } from 'matrix-js-sdk';
 import { AsyncStatus, useAsyncCallbackValue } from '../hooks/useAsyncCallback';

@@ -1,3 +1,8 @@
+// Cinny Project
+// Copyright (c) 2021-2026 Ajay Bura
+// SPDX-License-Identifier: AGPL-3.0-only
+// https://cinny.in
+
 import { createContext, useCallback, useContext, useMemo } from 'react';
 import { ConditionKind, IPushRules, MatrixClient, PushRuleKind } from 'matrix-js-sdk';
 import { Icons, IconSrc } from 'folds';

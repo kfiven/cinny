@@ -1,3 +1,8 @@
+// Cinny Project
+// Copyright (c) 2021-2026 Ajay Bura
+// SPDX-License-Identifier: AGPL-3.0-only
+// https://cinny.in
+
 import { ReactNode, useCallback, useState } from 'react';
 import { MatrixClient, Room } from 'matrix-js-sdk';
 import { useQuery } from '@tanstack/react-query';

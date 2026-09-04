@@ -1,3 +1,8 @@
+// Cinny Project
+// Copyright (c) 2021-2026 Ajay Bura
+// SPDX-License-Identifier: AGPL-3.0-only
+// https://cinny.in
+
 import { Descendant, Editor, Text } from 'slate';
 import { MatrixClient } from 'matrix-js-sdk';
 import { sanitizeText } from '../../utils/sanitize';
