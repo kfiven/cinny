@@ -1,3 +1,8 @@
+// Cinny Project
+// Copyright (c) 2021-2026 Ajay Bura
+// SPDX-License-Identifier: AGPL-3.0-only
+// https://cinny.in
+
 import { ReactElement } from 'react';
 import { Unread } from '../../types/matrix/room';
 import { useRoomUnread, useRoomsUnread } from '../state/hooks/unread';

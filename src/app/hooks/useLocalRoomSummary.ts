@@ -1,3 +1,8 @@
+// Cinny Project
+// Copyright (c) 2021-2026 Ajay Bura
+// SPDX-License-Identifier: AGPL-3.0-only
+// https://cinny.in
+
 import { GuestAccess, HistoryVisibility, JoinRule, Room } from 'matrix-js-sdk';
 import { getStateEvent } from '../utils/room';
 import { StateEvent } from '../../types/matrix/room';
